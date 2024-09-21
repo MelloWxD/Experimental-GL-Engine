@@ -72,20 +72,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\include;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\External\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\External\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\include;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\External\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\External\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\include;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\External\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\External\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\include;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Uni_work\Year2\SHOT\GL_Raycaster\External\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\External\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\External\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,7 +98,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -116,7 +116,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +130,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,10 +148,12 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\EBO.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\AssetManager.cpp" />
@@ -179,12 +181,15 @@
     <ClInclude Include="Header\Framework.h" />
     <ClInclude Include="Header\Constants.h" />
     <ClInclude Include="Header\VAO.h" />
+    <ClInclude Include="Header\Vertex.h" />
     <ClInclude Include="Header\Window.h" />
     <ClInclude Include="Header\InputHandle.h" />
     <ClInclude Include="Header\Renderer.h" />
     <ClInclude Include="Header\ShaderModule.h" />
     <ClInclude Include="Header\VBO.h" />
     <ClInclude Include="Header\Texture.h" />
+    <ClInclude Include="Header\Mesh.h" />
+    <ClInclude Include="Header\Model.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic_lighting_frag.glsl">
@@ -224,6 +229,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="shaders\noLightingFrag.glsl" />
+    <None Include="shaders\noLightingVert.glsl" />
     <None Include="shaders\vert_Tri.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

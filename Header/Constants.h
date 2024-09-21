@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<iostream>
+#include<vector>
 #include<assert.h>
 #include<string>
 #include<glad/glad.h>
@@ -25,3 +26,4 @@ using m4 = glm::mat3;
 using p2 = glm::vec2; // Shorthand points for clarity when differing between points in space and vectors
 using p3 = glm::vec3;
 	
+

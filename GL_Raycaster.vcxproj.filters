@@ -57,6 +57,12 @@
     <ClCompile Include="src\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\Window.h">
@@ -95,6 +101,15 @@
     <ClInclude Include="Header\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vert_Tri.glsl" />
@@ -105,5 +120,7 @@
     <None Include="shaders\lightcube_frag.glsl" />
     <None Include="shaders\lightcube_vert.glsl" />
     <None Include="shaders\input_structs.glsl" />
+    <None Include="shaders\noLightingFrag.glsl" />
+    <None Include="shaders\noLightingVert.glsl" />
   </ItemGroup>
 </Project>

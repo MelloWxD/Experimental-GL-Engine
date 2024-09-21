@@ -5,6 +5,7 @@ class ShaderModule;
 class AssetManager;
 class Window;
 class Camera;
+class Model;
 
 // Buffer Object forward decs
 class VBO;
@@ -133,7 +134,7 @@ public:
 	};
 	m4 modelMat;
 
-
+    Model* pModel;
 
 	Window* pWin;
 	AssetManager* pAssetManager;

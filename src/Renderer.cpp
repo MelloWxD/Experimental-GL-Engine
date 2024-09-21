@@ -7,6 +7,8 @@
 #include "..\Header\EBO.h"
 #include "..\Header\Camera.h"
 #include "..\Header\Texture.h"
+#include "..\Header\Mesh.h"
+#include "..\Header\Model.h"
 
 Renderer::Renderer(Window* pWindow, AssetManager* pAM)
 {
@@ -31,9 +33,10 @@ void Renderer::InitializeShaders()
 	_pVAO->Bind();
 	_pVBO = new VBO(_vertices, sizeof(_vertices));
 	_pEBO = new EBO(_indices, sizeof(_indices));
+	//pLightingShaderModule = new ShaderModule("shaders/noLightingVert.glsl", "shaders/noLightingFrag.glsl"); // Lighting Shader
 	pLightingShaderModule = new ShaderModule("shaders/basic_lighting_vert.glsl", "shaders/basic_lighting_frag.glsl"); // Lighting Shader
 	pLightingCubeShaderModule = new ShaderModule("shaders/lightcube_vert.glsl", "shaders/lightcube_frag.glsl"); // LightCubeShader
-
+	pModel = new Model("Assets/backpack/backpack.obj");
 
 	_pVBO->Bind();
 	
@@ -174,10 +177,10 @@ void Renderer::Render()
 
 	pLightingShaderModule->setFloat("material.shininess", 8);
 
-	pLightingShaderModule->setInt("material.diffuse", 0);
-	pLightingShaderModule->setInt("material.specular", 1);
-	pLightingShaderModule->setInt("material.emission", 2);
-	pLightingShaderModule->setBool("material.hasEmission", true);
+	/*pLightingShaderModule->setInt("texture_diffuse1", 0);
+	pLightingShaderModule->setInt("material.specular", 1);*/
+	//pLightingShaderModule->setInt("material.emission", 2);
+	//pLightingShaderModule->setBool("material.hasEmission", true);
 
 
 	// view/projection transformations
@@ -193,46 +196,47 @@ void Renderer::Render()
 	glm::mat4 model = glm::mat4(1.0f);
 	pLightingShaderModule->setMat4("model", model);
 
-	// Bind textures
-	pAssetManager->diffuseMap->Bind();
-	pAssetManager->specularMap->Bind();
-	pAssetManager->emissionMap->Bind();	
+	pModel->Draw(pLightingShaderModule);
+	//// Bind textures
+	//pAssetManager->diffuseMap->Bind();
+	//pAssetManager->specularMap->Bind();
+	//pAssetManager->emissionMap->Bind();	
 
 
-	// render the cube
-	//glBindVertexArray(VAO);
-	_pVAO->Bind();
-	for (unsigned int i = 0; i < 10; i++)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, positions[i]);
-		float angle = 20.0f * i;//;* glfwGetTime();
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		pLightingShaderModule->setMat4("model", model);
+	//// render the cube
+	////glBindVertexArray(VAO);
+	//_pVAO->Bind();
+	//for (unsigned int i = 0; i < 10; i++)
+	//{
+	//	glm::mat4 model = glm::mat4(1.0f);
+	//	model = glm::translate(model, positions[i]);
+	//	float angle = 20.0f * i;//;* glfwGetTime();
+	//	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+	//	pLightingShaderModule->setMat4("model", model);
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	//	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//}
 
-	_pVAO->Unbind();
-
-
-	pLightingCubeShaderModule->Use();
-	pLightingCubeShaderModule->setMat4("projection", projection);
-	pLightingCubeShaderModule->setMat4("view", pCamera->view);
+	//_pVAO->Unbind();
 
 
-	// Lighting shader
-	//glBindVertexArray(light_VAO);
-	_pLightVAO->Bind();
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, pointLightPositions[i]);
-		model = glm::rotate(model, 0.f, glm::vec3(1.0f, 0.3f, 0.5f));
-		pLightingCubeShaderModule->setMat4("model", model);
+	//pLightingCubeShaderModule->Use();
+	//pLightingCubeShaderModule->setMat4("projection", projection);
+	//pLightingCubeShaderModule->setMat4("view", pCamera->view);
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+
+	//// Lighting shader
+	////glBindVertexArray(light_VAO);
+	//_pLightVAO->Bind();
+	//for (unsigned int i = 0; i < 4; i++)
+	//{
+	//	glm::mat4 model = glm::mat4(1.0f);
+	//	model = glm::translate(model, pointLightPositions[i]);
+	//	model = glm::rotate(model, 0.f, glm::vec3(1.0f, 0.3f, 0.5f));
+	//	pLightingCubeShaderModule->setMat4("model", model);
+
+	//	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//}
 	
 
 }
