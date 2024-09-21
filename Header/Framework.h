@@ -11,7 +11,7 @@ public:
 	
 	Framework()
 	{
-		pWindow = new Window(SCREEN_RES_X, SCREEN_RES_Y, "I have been job hunting for 6+ months PLEASE GIMME SOMETHING");
+		pWindow = new Window(SCREEN_RES_X, SCREEN_RES_Y, WINDOW_NAME);
 		InitGL();
 		pAssetMan = new AssetManager();
 		pRenderer = new Renderer(pWindow, pAssetMan);
@@ -22,6 +22,10 @@ public:
 	void InitGL();
 	void RunApp();
 	bool _bRunning = false;
+
+	float fps_start;
+	float fps_current;
+	int fpsInLastSecond = 0;
 
 	float _currentFrameTime = 0.f;
 	float _lastFrameTime = 0.f;
