@@ -174,6 +174,11 @@ void Renderer::Render()
 
 	pLightingShaderModule->setFloat("material.shininess", 8);
 
+	pLightingShaderModule->setInt("material.diffuse", 0);
+	pLightingShaderModule->setInt("material.specular", 1);
+	pLightingShaderModule->setInt("material.emission", 2);
+	pLightingShaderModule->setBool("material.hasEmission", true);
+
 
 	// view/projection transformations
 	glm::mat4 projection = glm::perspective(glm::radians(pCamera->_fov), (float)SCREEN_RES_X / (float)SCREEN_RES_Y, pCamera->nearPlane, pCamera->farPlane);
@@ -191,6 +196,7 @@ void Renderer::Render()
 	// Bind textures
 	pAssetManager->diffuseMap->Bind();
 	pAssetManager->specularMap->Bind();
+	pAssetManager->emissionMap->Bind();	
 
 
 	// render the cube

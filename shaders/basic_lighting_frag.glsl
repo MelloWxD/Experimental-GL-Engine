@@ -4,7 +4,9 @@ out vec4 FragColor;
 struct Material {
     sampler2D diffuse;
     sampler2D specular;   
+    sampler2D emission;   
 
+    bool hasEmission;
     float shininess;
 }; 
 uniform Material material;
@@ -78,12 +80,18 @@ vec3 calcPointLighting(PointLight light, vec3 norm, vec3 viewDir)
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
     vec3 diffuse = light.diffuse * diffuse_strength * vec3(texture(material.diffuse, TexCoords));
     vec3 specular = light.specular * spec * vec3(texture(material.diffuse, TexCoords));
+    vec3 emission = vec3(texture(material.emission, TexCoords));
 
     ambient *= attentuation;
     diffuse *= attentuation;
     specular *= attentuation;
 
-    return (ambient + diffuse + specular) * light.color;
+   if (material.hasEmission)
+    {
+        return (ambient + diffuse + specular + emission) * light.color;
+
+    }
+        return (ambient + diffuse + specular) * light.color;
 
 }
 
@@ -102,8 +110,14 @@ vec3 calDirectLighting(DirLight light, vec3 norm, vec3 viewDir)
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
     vec3 diffuse = light.diffuse * diff_strength * vec3(texture(material.diffuse, TexCoords));
     vec3 specular = light.specular * spec * vec3(texture(material.diffuse, TexCoords));
+    vec3 emission = vec3(texture(material.emission, TexCoords));
 
-    return (ambient + diffuse + specular) * light.color;
+  if (material.hasEmission)
+    {
+        return (ambient + diffuse + specular + emission) * light.color;
+
+    }
+        return (ambient + diffuse + specular) * light.color;
 
 }
 
@@ -126,10 +140,17 @@ vec3 calcSpotLighting(SpotLight light, vec3 norm, vec3 viewDir)
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
     vec3 diffuse = light.diffuse * diff_strength * vec3(texture(material.diffuse, TexCoords));
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    vec3 emission = vec3(texture(material.emission, TexCoords));
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
-    return (ambient + diffuse + specular) * light.color;
+   if (material.hasEmission)
+    {
+        return (ambient + diffuse + specular + emission) * light.color;
+
+    }
+        return (ambient + diffuse + specular) * light.color;
+
 
 }
 

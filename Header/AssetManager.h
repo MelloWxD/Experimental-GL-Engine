@@ -14,5 +14,6 @@ public:
 	Texture* texture2;
 	Texture* diffuseMap;
 	Texture* specularMap;
+	Texture* emissionMap;
 };
 
