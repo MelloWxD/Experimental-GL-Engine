@@ -25,16 +25,18 @@ void Model::loadFromFile(std::string file_path)
 }
 
 
-std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene)
 {
     std::vector<Texture*> textures;
+
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str;
         mat->GetTexture(type, i, &str);
         bool skip = false;
         std::string abspath = directory + "/" + str.C_Str();
-
+    
+        
         for (auto x = 0; x < _loaded_Textures.size(); ++x)
         {
             if (std::strcmp(_loaded_Textures[x]->_path.data(), abspath.c_str()) == 0)
@@ -46,13 +48,26 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
         }
         if (!skip)
         {
-            Texture* texture = new Texture(abspath.c_str(), i, GL_UNSIGNED_BYTE);
-            texture->_type = type;
-            /* texture.id = TextureFromFile(str.C_Str(), directory);
-             
-             texture.path = str;*/
-            textures.push_back(texture);
-            _loaded_Textures.push_back(texture);
+            if (auto tex = scene->GetEmbeddedTexture(str.C_Str()))// check if embedded
+            {
+              
+            
+                Texture* texture = new Texture(tex, i, GL_UNSIGNED_BYTE, abspath.c_str());    
+                texture->_type = type;
+                textures.push_back(texture);
+                _loaded_Textures.push_back(texture);
+                printf("Embedded texture found");// embedded texture
+            }
+            else
+            {
+                Texture* texture = new Texture(abspath.c_str(), i, GL_UNSIGNED_BYTE);
+                texture->_type = type;
+                /* texture.id = TextureFromFile(str.C_Str(), directory);
+
+                 texture.path = str;*/
+                textures.push_back(texture);
+                _loaded_Textures.push_back(texture);
+            }
         }
     }
     return textures;
@@ -110,10 +125,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         std::vector<Texture*> diffuseMaps = loadMaterialTextures(material,
-            aiTextureType_DIFFUSE, "texture_diffuse");
+            aiTextureType_DIFFUSE, "texture_diffuse", scene);
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         std::vector<Texture*> specularMaps = loadMaterialTextures(material,
-            aiTextureType_SPECULAR, "texture_specular");
+            aiTextureType_SPECULAR, "texture_specular", scene);
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end()); 
         
        /* std::vector<Texture*> emissionMaps = loadMaterialTextures(material,
@@ -137,7 +152,7 @@ void Model::processNode(aiNode* node, const aiScene* scene)
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
         system("cls");
-        printf("Model Nodes Remaining - %i", node->mNumChildren - i);
+        printf("Model Nodes Remaining - %i", node->mNumChildren - i -1);
         processNode(node->mChildren[i], scene);
     }
 }

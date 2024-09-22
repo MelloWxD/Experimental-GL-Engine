@@ -8,6 +8,7 @@ class ShaderModule;
 struct Texture
 {
 	Texture(const char* img_path, GLuint slot, GLenum pixelType);
+	Texture(const aiTexture* data_ptr, GLuint slot, GLenum pixelType, std::string path);
 	//Texture(const char* img_path, GLenum texture_type, GLuint slot, GLenum pixelType);
 	~Texture();
 

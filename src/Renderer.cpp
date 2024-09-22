@@ -23,7 +23,8 @@ Renderer::Renderer(Window* pWindow, AssetManager* pAM)
 	InitializeShaders();
 	
 	glEnable(GL_DEPTH_TEST);
-	
+	glEnable(GL_STENCIL_TEST);
+
 
 }
 
@@ -35,7 +36,7 @@ void Renderer::InitializeShaders()
 	_pEBO = new EBO(_indices, sizeof(_indices));
 	pLightingShaderModule = new ShaderModule("shaders/basic_lighting_vert.glsl", "shaders/basic_lighting_frag.glsl"); // Lighting Shader
 	pLightingCubeShaderModule = new ShaderModule("shaders/lightcube_vert.glsl", "shaders/lightcube_frag.glsl"); // LightCubeShader
-	pModel = new Model("Assets/backpack/backpack.obj");
+	pModel = new Model("Assets/sponza.glb");
 
 	_pVBO->Bind();
 	
@@ -201,7 +202,7 @@ void Renderer::Display()
 {
 	preRender();
 	//clear screen
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	Render();
 

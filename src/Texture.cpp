@@ -64,6 +64,72 @@ Texture::Texture(const char* img_path, GLuint slot, GLenum pixelType) // TYPE IS
 	}
 }
 
+Texture::Texture(const aiTexture* tex_ptr, GLuint slot, GLenum pixelType, std::string path)
+{
+	// Assigns the type of the texture ot the texture object
+	if (tex_ptr->mHeight == 0)
+	{
+		// Compressed texture data
+		const unsigned char* textureData = reinterpret_cast<const unsigned char*>(tex_ptr->pcData);
+
+
+		// Stores the width, height, and the number of color channels of the image
+		int widthImg, heightImg, numColCh;
+		// Flips the image so it appears right side up
+		stbi_set_flip_vertically_on_load(true);
+		// Load texture using stb_image from memory
+		unsigned char* image = stbi_load_from_memory(textureData, tex_ptr->mWidth, &widthImg, &heightImg, &numColCh, 0);
+
+		if (image)
+		{
+			GLenum format;
+			if (numColCh == 1)
+				format = GL_RED;
+			else if (numColCh == 3)
+				format = GL_RGB;
+			else if (numColCh == 4)
+				format = GL_RGBA;
+
+			// Generates an OpenGL texture object
+			glGenTextures(1, &_id);
+			// Assigns the texture to a Texture Unit
+			glActiveTexture(GL_TEXTURE0 + slot);
+			_unit = slot;
+			glBindTexture(GL_TEXTURE_2D, _id);
+
+			// Configures the type of algorithm that is used to make the image smaller or bigger
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+			// Configures the way the texture repeats (if it does at all)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+			// Extra lines in case you choose to use GL_CLAMP_TO_BORDER
+			// float flatColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+			// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColor);
+
+			// Assigns the image to the OpenGL Texture object
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, format, pixelType, image);
+			// Generates MipMaps
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			// Deletes the image data as it is already in the OpenGL Texture object
+			stbi_image_free(image);
+
+			// Unbinds the OpenGL Texture object so that it can't accidentally be modified
+			glBindTexture(GL_TEXTURE_2D, 0);
+			_path = std::string(path);
+
+		}
+		else
+		{
+			printf("Failed to Load Embedded texture %s\n", path);
+			stbi_image_free(image);
+		}
+	}
+}
+
 Texture::~Texture()
 {
 	glDeleteTextures(1, &_id);
