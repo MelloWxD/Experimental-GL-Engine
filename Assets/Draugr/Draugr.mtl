@@ -1,0 +1,48 @@
+# Blender MTL File: 'Draugr Rig.blend'
+# Material Count: 4
+
+newmtl Arms
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Draugr Sub_Arms_Diffuse.png
+map_Ks Draugr Sub_Arms_Specular.png
+newmtl Head
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Draugr Sub_Head_Diffuse.png
+map_Ks Draugr Sub_Head_Specular.png
+map_Ke Draugr Sub_Head_Emissive.png
+newmtl Legs
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Draugr Sub_Legs_Diffuse.png
+map_Ks Draugr Sub_Legs_Specular.png
+newmtl Torso
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Draugr Sub_Torso_Diffuse.png
+map_Ks Draugr Sub_Torso_Specular.png

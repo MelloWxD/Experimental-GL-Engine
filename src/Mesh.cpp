@@ -43,6 +43,7 @@ void Mesh::Draw(ShaderModule* shader)
 {
 	unsigned int diffuseNr = 0;
 	unsigned int specularNr = 0;
+	unsigned int emissionNr = 0;
 	for (unsigned int i = 0; i < _textures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
@@ -53,12 +54,19 @@ void Mesh::Draw(ShaderModule* shader)
 		if (_textures[i]->_type == aiTextureType_DIFFUSE)
 		{
 			prefix = "material.texture_diffuse";
-			num = std::to_string(diffuseNr++);
+			num = std::to_string(++diffuseNr);
 		}
 		else if (_textures[i]->_type == aiTextureType_SPECULAR)
 		{
 			prefix = "material.texture_specular";
-			num = std::to_string(specularNr++);
+			num = std::to_string(++specularNr);
+		}	
+		else if (_textures[i]->_type == aiTextureType_EMISSIVE)
+		{
+			prefix = "material.texture_texture_emission";
+			num = std::to_string(++emissionNr);
+			//shader->setBool("material.hasEmission", true);
+
 		}
 		shader->setInt((prefix + num).c_str(), i);
 		//_textures[i]->Bind();        

@@ -56,7 +56,7 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
                 texture->_type = type;
                 textures.push_back(texture);
                 _loaded_Textures.push_back(texture);
-                printf("Embedded texture found");// embedded texture
+                printf("Embedded texture found %s \n", tex->mFilename.C_Str());// embedded texture
             }
             else
             {
@@ -131,9 +131,12 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             aiTextureType_SPECULAR, "texture_specular", scene);
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end()); 
         
-       /* std::vector<Texture*> emissionMaps = loadMaterialTextures(material,
-            aiTextureType_EMISSIVE, "texture_emission");
-        textures.insert(textures.end(), emissionMaps.begin(), emissionMaps.end());*/
+        
+       std::vector<Texture*> emissionMaps = loadMaterialTextures(material,
+            aiTextureType_EMISSIVE, "texture_emission", scene);
+        textures.insert(textures.end(), emissionMaps.begin(), emissionMaps.end());
+        
+
     }
 
 

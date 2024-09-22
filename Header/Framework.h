@@ -16,7 +16,7 @@ public:
 		pAssetMan = new AssetManager();
 		pRenderer = new Renderer(pWindow, pAssetMan);
 		pInputHandle = new InputHandler(pWindow->window, pRenderer->pCamera);
-
+	
 		_bRunning = true;
 	}
 	void InitGL();

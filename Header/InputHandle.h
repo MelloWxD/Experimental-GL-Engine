@@ -18,7 +18,7 @@ public:
 	double lastX = -FLT_MAX;
 	double lastY = -FLT_MAX;
 
-
+	bool camLock = true;
 	GLFWwindow* pWin;
 	Camera* pCam;
 };

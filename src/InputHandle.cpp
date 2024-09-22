@@ -70,31 +70,49 @@ void InputHandler::CheckInputs(float dTime)
 	{
 		glfwSetWindowShouldClose(pWin, true);
 	}
-	float speed = pCam->speed * dTime;
-	auto& camRef = *pCam;
-	if (glfwGetKey(pWin, GLFW_KEY_W) == GLFW_PRESS)
+	// Movement
 	{
-		camRef.position = camRef.position + speed * pCam->camFront;
+		float speed = pCam->speed * dTime;
+		auto& camRef = *pCam;
+		if (glfwGetKey(pWin, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			camRef.position = camRef.position + speed * pCam->camFront;
+		}
+		if (glfwGetKey(pWin, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			camRef.position -= speed * pCam->camFront;
+		}
+		if (glfwGetKey(pWin, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			camRef.position -= glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;
+		}
+		if (glfwGetKey(pWin, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			camRef.position += glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;
+		}
+		if (glfwGetKey(pWin, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			camRef.position += speed * pCam->Up;
+		}
+		if (glfwGetKey(pWin, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		{
+			camRef.position -= speed * pCam->Up;
+		}
 	}
-	if (glfwGetKey(pWin, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		camRef.position -= speed * pCam->camFront;
-	}
-	if (glfwGetKey(pWin, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		camRef.position -= glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;
-	}
-	if (glfwGetKey(pWin, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		camRef.position += glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;
-	}
-	if (glfwGetKey(pWin, GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		camRef.position += speed * pCam->Up;
-	}
-	if (glfwGetKey(pWin, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-	{
-		camRef.position -= speed * pCam->Up;
-	}
+	// Mouse
 	handleMouse();
+	if (glfwGetKey(pWin, GLFW_KEY_F) == GLFW_PRESS)
+	{
+		if (camLock)
+		{
+			glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			camLock = !camLock;
+		}
+		else
+		{
+			
+				glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				camLock = !camLock;
+		}
+	}
 }

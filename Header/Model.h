@@ -19,6 +19,7 @@ public:
 	}
 
 	void Draw(ShaderModule* shader);
+	std::vector<Texture*> _loaded_Textures;
 
 private:
 	void loadFromFile(std::string file_path);
@@ -30,7 +31,6 @@ private:
 	std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, const aiScene* scene);
 
 	std::vector<Mesh> _meshes; 
-	std::vector<Texture*> _loaded_Textures;
 
 };
 

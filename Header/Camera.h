@@ -20,13 +20,13 @@ public:
 	glm::vec3 camFront;
 	glm::vec3 camUp;
 
-	float speed = 2.5f;
+	float speed = 250.5f;
 
 	float pitch = 0.f;
 	float yaw = -90.f;
 	
 	float nearPlane = 0.1f;
-	float farPlane = 1000.f;
+	float farPlane = 10000.f;
 
 	float _fov = 90.f;
 	m4 camMatrix = m4(1.f);

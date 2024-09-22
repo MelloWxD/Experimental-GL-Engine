@@ -10,6 +10,10 @@
 #include "..\Header\Mesh.h"
 #include "..\Header\Model.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 Renderer::Renderer(Window* pWindow, AssetManager* pAM)
 {
 	assert(pWindow != nullptr);
@@ -18,25 +22,60 @@ Renderer::Renderer(Window* pWindow, AssetManager* pAM)
 	pCamera = new Camera();
 	pCamera->position = v3(0.f, 0.f, 3.f);
 
+	// Initialize ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	ImGui_ImplGlfw_InitForOpenGL(pWindow->window, true);
+	ImGui_ImplOpenGL3_Init(OPENGL_VERSION);
+
 
 
 	InitializeShaders();
 	
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_STENCIL_TEST);
+	
 
-
+	
 }
+void DrawImgui()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
+	ImGui::ShowDemoWindow();
+	
+	
+}
 void Renderer::InitializeShaders()
 {
 	_pVAO = new VAO();
 	_pVAO->Bind();
 	_pVBO = new VBO(_vertices, sizeof(_vertices));
 	_pEBO = new EBO(_indices, sizeof(_indices));
+	//pLightingShaderModule = new ShaderModule("shaders/noLightingVert.glsl", "shaders/noLightingFrag.glsl"); // Lighting Shader
 	pLightingShaderModule = new ShaderModule("shaders/basic_lighting_vert.glsl", "shaders/basic_lighting_frag.glsl"); // Lighting Shader
 	pLightingCubeShaderModule = new ShaderModule("shaders/lightcube_vert.glsl", "shaders/lightcube_frag.glsl"); // LightCubeShader
 	pModel = new Model("Assets/sponza.glb");
+	
+	for (auto t : pModel->_loaded_Textures)
+	{
+		if (t->_type == aiTextureType_DIFFUSE)
+		{
+			printf("Loaded Diffuse Map\n");
+		}
+		if (t->_type == aiTextureType_SPECULAR)
+		{
+			printf("Loaded Specular Map\n");
+		}
+		
+		if (t->_type == aiTextureType_EMISSIVE)
+		{
+			printf("Loaded Emission Map\n");
+		}
+	}
 
 	_pVBO->Bind();
 	
@@ -203,8 +242,15 @@ void Renderer::Display()
 	preRender();
 	//clear screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
+
 	Render();
+
+	DrawImgui();
+	
+	// Render ImGui
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 
 	// Tell glfw to swap buffers to present new scene
 	glfwSwapBuffers(pWin->window);
