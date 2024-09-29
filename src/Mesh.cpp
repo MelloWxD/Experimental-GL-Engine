@@ -6,12 +6,12 @@
 #include"..\Header\EBO.h"
 #include"..\Header\ShaderModule.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture*> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture*> textures, std::string name)
 {
 	_vertices = vertices;
 	_indices = indices;
 	_textures = textures;
-
+	_name = name;
 	initialize();
 }
 
@@ -33,6 +33,12 @@ void Mesh::initialize()
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+	
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+	
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, BiTangent));
 	_vao->Unbind();
 	_vbo->Unbind();
 	_ebo->Unbind();
@@ -44,6 +50,7 @@ void Mesh::Draw(ShaderModule* shader)
 	unsigned int diffuseNr = 0;
 	unsigned int specularNr = 0;
 	unsigned int emissionNr = 0;
+	unsigned int normalNr = 0;
 	for (unsigned int i = 0; i < _textures.size(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
@@ -61,6 +68,11 @@ void Mesh::Draw(ShaderModule* shader)
 			prefix = "material.texture_specular";
 			num = std::to_string(++specularNr);
 		}	
+		else if (_textures[i]->_type == aiTextureType_NORMALS)
+		{
+			prefix = "material.texture_normal";
+			num = std::to_string(++normalNr);
+		}	
 		else if (_textures[i]->_type == aiTextureType_EMISSIVE)
 		{
 			prefix = "material.texture_texture_emission";
@@ -69,16 +81,19 @@ void Mesh::Draw(ShaderModule* shader)
 
 		}
 		shader->setInt((prefix + num).c_str(), i);
-		//_textures[i]->Bind();        
 		glBindTexture(GL_TEXTURE_2D, _textures[i]->_id);
-
 
 	}
 	glActiveTexture(GL_TEXTURE0);
 
 	// draw mesh
 	_vao->Bind();
+	glCullFace(GL_BACK);
 	glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0);
 	_vao->Unbind();
+	for (auto t : _textures)
+	{
+		t->Unbind();
+	}
 
 }

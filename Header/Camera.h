@@ -10,6 +10,7 @@ public:
 	void Update();
 	
 	m4 GetViewMatrix();
+	m4 getProjMatrix();
 	glm::vec3 position;
 	glm::vec3 camTarget;
 	glm::vec3 Direction;

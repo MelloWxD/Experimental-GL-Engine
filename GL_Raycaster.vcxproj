@@ -156,6 +156,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="External\include\imgui\GraphEditor.cpp" />
+    <ClCompile Include="External\include\imgui\ImCurveEdit.cpp" />
+    <ClCompile Include="External\include\imgui\ImGradient.cpp" />
+    <ClCompile Include="External\include\imgui\ImGuizmo.cpp" />
+    <ClCompile Include="External\include\imgui\ImSequencer.cpp" />
+    <ClCompile Include="src\RenderObject.cpp" />
+    <ClCompile Include="src\Editor.cpp" />
     <ClCompile Include="External\include\imgui\imgui.cpp" />
     <ClCompile Include="External\include\imgui\imgui_demo.cpp" />
     <ClCompile Include="External\include\imgui\imgui_draw.cpp" />
@@ -163,6 +170,7 @@
     <ClCompile Include="External\include\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="External\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="External\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\FBO.cpp" />
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\EBO.cpp" />
@@ -186,6 +194,13 @@
     <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="External\include\imgui\GraphEditor.h" />
+    <ClInclude Include="External\include\imgui\ImCurveEdit.h" />
+    <ClInclude Include="External\include\imgui\ImGradient.h" />
+    <ClInclude Include="External\include\imgui\ImGuizmo.h" />
+    <ClInclude Include="External\include\imgui\ImSequencer.h" />
+    <ClInclude Include="External\include\imgui\ImZoomSlider.h" />
+    <ClInclude Include="Header\Editor.h" />
     <ClInclude Include="External\include\imgui\imconfig.h" />
     <ClInclude Include="External\include\imgui\imgui.h" />
     <ClInclude Include="External\include\imgui\imgui_impl_glfw.h" />
@@ -198,6 +213,7 @@
     <ClInclude Include="Header\Camera.h" />
     <ClInclude Include="Header\AssetManager.h" />
     <ClInclude Include="Header\EBO.h" />
+    <ClInclude Include="Header\FBO.h" />
     <ClInclude Include="Header\Framework.h" />
     <ClInclude Include="Header\Constants.h" />
     <ClInclude Include="Header\VAO.h" />
@@ -210,15 +226,16 @@
     <ClInclude Include="Header\Texture.h" />
     <ClInclude Include="Header\Mesh.h" />
     <ClInclude Include="Header\Model.h" />
+    <ClInclude Include="Header\RenderObject.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\basic_lighting_frag.glsl">
+    <None Include="shaders\basic_lighting_shadowed_frag.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="shaders\basic_lighting_vert.glsl">
+    <None Include="shaders\basic_lighting_shadowed_vert.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -236,6 +253,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="shaders\cmBasic.frag" />
+    <None Include="shaders\cmBasic.vert" />
+    <None Include="shaders\debugquad.frag" />
+    <None Include="shaders\debugquad.vert" />
+    <None Include="shaders\emptyFrag.frag" />
     <None Include="shaders\input_structs.glsl" />
     <None Include="shaders\lightcube_frag.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -251,6 +273,9 @@
     </None>
     <None Include="shaders\noLightingFrag.glsl" />
     <None Include="shaders\noLightingVert.glsl" />
+    <None Include="shaders\simpleDepth.vert" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
     <None Include="shaders\vert_Tri.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

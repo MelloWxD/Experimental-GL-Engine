@@ -12,4 +12,6 @@ struct Vertex
 	v3 position;
 	v3 normal;
 	v2 uv;
+	v3 Tangent;
+	v3 BiTangent;
 };

@@ -3,12 +3,14 @@
 #include<vector>
 #include<assert.h>
 #include<string>
+#include<unordered_map>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #define SCREEN_RES_X 2160
 #define SCREEN_RES_Y 1440
+#define MSAA_SAMPLE_SIZE 4
 
 #include<glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

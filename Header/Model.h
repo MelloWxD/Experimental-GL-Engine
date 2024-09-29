@@ -21,7 +21,6 @@ public:
 	void Draw(ShaderModule* shader);
 	std::vector<Texture*> _loaded_Textures;
 
-private:
 	void loadFromFile(std::string file_path);
 
 	std::string directory;

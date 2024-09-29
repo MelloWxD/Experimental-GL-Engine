@@ -32,6 +32,7 @@ ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
         catch (std::ifstream::failure e)
         {
             std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            system("pause");
         }
         
     }
@@ -53,6 +54,7 @@ ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
     {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        system("pause");
     };
 
     // Frag Shader
@@ -65,6 +67,8 @@ ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
     {
         glGetShaderInfoLog(fragment, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    
+        system("pause");
     };
 
 
@@ -81,6 +85,7 @@ ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
     {
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        system("pause");
     }
 
     // delete the shaders as they're linked into our program now and no longer necessary

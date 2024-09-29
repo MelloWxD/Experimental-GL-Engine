@@ -1,18 +1,22 @@
 #include "..\Header\InputHandle.h"
+#include "..\Header\Editor.h"
 #include "..\Header\Camera.h"
+#include "..\Header\Renderer.h"
+#include "..\Header\Framework.h"
 
 
 
 bool firstMouse = true;
 
 
-InputHandler::InputHandler(GLFWwindow* pWindow, Camera* cam)
+InputHandler::InputHandler(GLFWwindow* pWindow, Framework* pfw, Camera* cam, Editor* pEdit)
 {
 	assert(pWindow != nullptr);
 	pWin = pWindow;
 	pCam = cam;
-
-
+	pEditor = pEdit;
+	pFw = pfw;
+	pRenderer = pfw->pRenderer;
 }
 
 void InputHandler::handleMouse()
@@ -58,61 +62,87 @@ void InputHandler::handleMouse()
 
 }
 
-void InputHandler::Update(float dTime)
+void InputHandler::Update()
 {
 	glfwPollEvents();
-	CheckInputs(dTime);
+	CheckInputs();
 }
 
-void InputHandler::CheckInputs(float dTime)
+const bool InputHandler::CheckKey(int keyNum, int glfw_check = GLFW_PRESS)
 {
-	if (glfwGetKey(pWin, GLFW_KEY_ESCAPE) == GLFW_PRESS) // Close on ESC Press
+	return (glfwGetKey(pWin, keyNum) == glfw_check);
+}
+void InputHandler::CheckInputs()
+{
+	if (CheckKey(GLFW_KEY_ESCAPE)) // Close on ESC Press
 	{
 		glfwSetWindowShouldClose(pWin, true);
 	}
 	// Movement
 	{
-		float speed = pCam->speed * dTime;
+		float speed = pCam->speed * pFw->_currentDeltaTime;
 		auto& camRef = *pCam;
 		if (glfwGetKey(pWin, GLFW_KEY_W) == GLFW_PRESS)
 		{
 			camRef.position = camRef.position + speed * pCam->camFront;
+
 		}
 		if (glfwGetKey(pWin, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			camRef.position -= speed * pCam->camFront;
+			camRef.position -= speed * pCam->camFront;		
+
 		}
 		if (glfwGetKey(pWin, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			camRef.position -= glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;
+			camRef.position -= glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;			
+
 		}
 		if (glfwGetKey(pWin, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			camRef.position += glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;
+			camRef.position += glm::normalize(glm::cross(pCam->camFront, pCam->Up)) * speed;		
+
 		}
 		if (glfwGetKey(pWin, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
-			camRef.position += speed * pCam->Up;
+			camRef.position += speed * pCam->Up;			
+
 		}
 		if (glfwGetKey(pWin, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 		{
-			camRef.position -= speed * pCam->Up;
+			camRef.position -= speed * pCam->Up;			
 		}
 	}
 	// Mouse
-	handleMouse();
-	if (glfwGetKey(pWin, GLFW_KEY_F) == GLFW_PRESS)
+	if (camLock == 0 || camLock == 1)
 	{
-		if (camLock)
+		handleMouse();
+	}
+	if (CheckKey(GLFW_KEY_CAPS_LOCK))
+	{
+		glfwWaitEventsTimeout(.7f);
+		pRenderer->debug = !pRenderer->debug;		
+
+	}
+	if (CheckKey(GLFW_KEY_F))
+	{
+		(camLock > 2) ? camLock = 0 : ++camLock;
+		if (camLock == 0)
 		{
-			glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			camLock = !camLock;
+			glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 		}
 		else
 		{
-			
-				glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-				camLock = !camLock;
+			glfwSetInputMode(pWin, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
+		glfwWaitEventsTimeout(0.7f);
+
+	}
+
+	if (CheckKey(GLFW_KEY_TAB))
+	{
+		glfwWaitEventsTimeout(0.7f);
+		pEditor->ToggleActive();			
+
 	}
 }

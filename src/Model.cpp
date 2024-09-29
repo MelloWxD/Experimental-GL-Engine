@@ -13,7 +13,7 @@ void Model::Draw(ShaderModule* shader)
 void Model::loadFromFile(std::string file_path)
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(file_path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = importer.ReadFile(file_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         printf("ASSIMP ERROR :: %s \n", importer.GetErrorString());
@@ -75,6 +75,7 @@ std::vector<Texture*> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
+    std::string name = mesh->mName.C_Str();
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture*> textures;
@@ -93,8 +94,21 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         normal.x = mesh->mNormals[i].x;
         normal.y = mesh->mNormals[i].y;
         normal.z = mesh->mNormals[i].z;
-
         v.normal = normal;
+
+        v3 tangent;
+        tangent.x = mesh->mTangents[i].x;
+        tangent.y = mesh->mTangents[i].y;
+        tangent.z = mesh->mTangents[i].z;
+        v.Tangent = tangent;
+
+        v3 bitangent;
+        bitangent.x = mesh->mBitangents[i].x;
+        bitangent.y = mesh->mBitangents[i].y;
+        bitangent.z = mesh->mBitangents[i].z;
+        v.BiTangent = bitangent;
+
+
 
         if (mesh->mTextureCoords[0]) // Check the mesh has textures otherwise set them to zero to prevent artefacting
         {
@@ -117,13 +131,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             indices.push_back(face.mIndices[j]);
     }  
 
-
+   
 
 
     // process material & textures
     if (mesh->mMaterialIndex >= 0)
     {
+        
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        
         std::vector<Texture*> diffuseMaps = loadMaterialTextures(material,
             aiTextureType_DIFFUSE, "texture_diffuse", scene);
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -131,7 +147,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             aiTextureType_SPECULAR, "texture_specular", scene);
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end()); 
         
-        
+        std::vector<Texture*> normalMaps = loadMaterialTextures(material,
+            aiTextureType_NORMALS, "texture_normal", scene);
+        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
        std::vector<Texture*> emissionMaps = loadMaterialTextures(material,
             aiTextureType_EMISSIVE, "texture_emission", scene);
         textures.insert(textures.end(), emissionMaps.begin(), emissionMaps.end());
@@ -140,7 +159,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     }
 
 
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, name);
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)

@@ -9,7 +9,10 @@ void Framework::InitGL()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_FRAMEBUFFER_SRGB);
+
 	glClear(GL_COLOR_BUFFER_BIT);
 	glfwSwapBuffers(pWindow->window);
 	fps_start = glfwGetTime();
@@ -43,8 +46,8 @@ void Framework::RunApp()
 	// else Do Frame Render
 	
 	pRenderer->Display();
-
-	pInputHandle->Update(_currentFrameTime - _lastFrameTime);
+	_currentDeltaTime = _currentFrameTime - _lastFrameTime;
+	pInputHandle->Update();
 	_lastFrameTime = _currentFrameTime;
 	
 }

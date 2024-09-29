@@ -22,6 +22,10 @@ m4 Camera::GetViewMatrix()
 	//this->view = glm::lookAt(this->position, this->position + this->Front, this->camUp);
 	return this->view;
 }
+m4 Camera::getProjMatrix()
+{
+	return glm::perspective(glm::radians(_fov), (float)SCREEN_RES_X / (float)SCREEN_RES_Y, nearPlane, farPlane);
+}
 void Camera::Update()
 {
 	// Update matrix

@@ -84,6 +84,30 @@
     <ClCompile Include="External\include\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\include\imgui\GraphEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\include\imgui\ImCurveEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\include\imgui\ImGradient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\include\imgui\ImGuizmo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\include\imgui\ImSequencer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\Window.h">
@@ -158,17 +182,52 @@
     <ClInclude Include="External\include\imgui\imstb_textedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header\Editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\FBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\RenderObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\include\imgui\GraphEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\include\imgui\ImCurveEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\include\imgui\ImGradient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\include\imgui\ImGuizmo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\include\imgui\ImSequencer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\include\imgui\ImZoomSlider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vert_Tri.glsl" />
     <None Include="shaders\basic_tex_vert.glsl" />
     <None Include="shaders\basic_tex_frag.glsl" />
-    <None Include="shaders\basic_lighting_vert.glsl" />
-    <None Include="shaders\basic_lighting_frag.glsl" />
+    <None Include="shaders\basic_lighting_shadowed_vert.glsl" />
+    <None Include="shaders\basic_lighting_shadowed_frag.glsl" />
     <None Include="shaders\lightcube_frag.glsl" />
     <None Include="shaders\lightcube_vert.glsl" />
     <None Include="shaders\input_structs.glsl" />
     <None Include="shaders\noLightingFrag.glsl" />
     <None Include="shaders\noLightingVert.glsl" />
+    <None Include="shaders\cmBasic.vert" />
+    <None Include="shaders\cmBasic.frag" />
+    <None Include="shaders\skybox.vert" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\simpleDepth.vert" />
+    <None Include="shaders\emptyFrag.frag" />
+    <None Include="shaders\debugquad.vert" />
+    <None Include="shaders\debugquad.frag" />
   </ItemGroup>
 </Project>
