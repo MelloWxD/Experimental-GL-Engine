@@ -229,5 +229,6 @@
     <None Include="shaders\emptyFrag.frag" />
     <None Include="shaders\debugquad.vert" />
     <None Include="shaders\debugquad.frag" />
+    <None Include="shaders\moreShadows.vert" />
   </ItemGroup>
 </Project>

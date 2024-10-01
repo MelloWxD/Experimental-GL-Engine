@@ -12,7 +12,7 @@ public:
 	RenderObject(v3 pos, glm::quat rot, v3 scale);
 
 	void Update();
-	void Draw(ShaderModule* pShader);
+	void Draw(ShaderModule* pShader, unsigned flag = 0u);
 	std::string _name;
 
 	v3 position;

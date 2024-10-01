@@ -271,6 +271,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="shaders\moreShadows.vert" />
     <None Include="shaders\noLightingFrag.glsl" />
     <None Include="shaders\noLightingVert.glsl" />
     <None Include="shaders\simpleDepth.vert" />

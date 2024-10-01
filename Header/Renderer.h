@@ -28,16 +28,27 @@ struct DirLight
 };
 struct SpotLight
 {
-    v3 position;
-    v3 direction; 
+    v3 position = v3(0, 10, 0);
+    v3 direction = v3(0, -1, 0); 
 
-    float constant;
-    float linear;
-    float quadratic;
-    float cutOff;
-    float outerCutOff;
-
-    v3 ambient;
+    float constant = 1.f;
+    float linear = 0.09f;
+    float quadratic = 0.0032f;
+    float cutOff = 12.5f;
+    float outerCutOff = 15.f;
+    // spotLight
+//pLightingShaderModule->setVec3("spotLight.position", spotLight.position);
+//pLightingShaderModule->setVec3("spotLight.direction", spotLight.direction);
+//////pLightingShaderModule->setVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
+//////pLightingShaderModule->setVec3("spotLight.diffuse", 0.1f, 0.1f, 0.1f);
+//////pLightingShaderModule->setVec3("spotLight.color", 1.0f, 1.0f, 0.0f);
+//////pLightingShaderModule->setVec3("spotLight.specular", 0.1f, 0.1f, 0.1f);
+//pLightingShaderModule->setFloat("spotLight.constant", 1.0f);
+//pLightingShaderModule->setFloat("spotLight.linear", 0.09f);
+//pLightingShaderModule->setFloat("spotLight.quadratic", 0.032f);
+//pLightingShaderModule->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+//pLightingShaderModule->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+    v3 ambient = v3(0);
     v3 diffuse = v3(1.f);
     v3 specular = v3(1.f);;
     v3 color = v3(1.f);;

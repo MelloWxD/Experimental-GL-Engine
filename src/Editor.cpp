@@ -43,7 +43,7 @@ void dragVec3(const char* label, glm::quat* q, float speed = 0.5f, float min = -
 void dragFloat(const char* label, float& f, float speed = 0.5f, float min = -FLT_MAX, float max = FLT_MAX, const char* fmt = "%.3f")
 {
 	buff[0] = f;
-	ImGui::DragFloat(label, &f, speed, min, max, fmt);
+	ImGui::DragFloat(label, buff, speed, min, max, fmt);
 	f = buff[0];
 }
 Editor::Editor(Window* pWin, AssetManager* pAM)
@@ -107,13 +107,13 @@ void Editor::Draw_Editor()
 			dragVec3("Direction [STATIC]", &sl.direction, 0.05f);
 			dragVec3("Ambient", &sl.ambient, 0.005f);
 			dragVec3("Diffuse", &sl.diffuse, 0.005f);
-			dragFloat("cutOff", *&sl.cutOff, 0.005f);
-			dragFloat("outerCutOff", *&sl.outerCutOff, 0.005f);
+			dragFloat("cutOff", sl.cutOff, 0.005f);
+			dragFloat("outerCutOff", sl.outerCutOff, 0.005f);
 			dragVec3("Specular", &sl.specular, 0.005f);
 			dragVec3("Colour", &sl.color, 0.005f);
-			dragFloat("Constant", *&sl.constant, 0.005f);
-			dragFloat("Linear", *&sl.linear, 0.005f);
-			dragFloat("Quadratic", *&sl.quadratic, 0.005f);
+			dragFloat("Constant", sl.constant, 0.005f);
+			dragFloat("Linear", sl.linear, 0.005f);
+			dragFloat("Quadratic", sl.quadratic, 0.005f);
 			sl.setLighting(_pRenderer->pLightingShaderModule);
 			ImGui::TreePop();
 		}

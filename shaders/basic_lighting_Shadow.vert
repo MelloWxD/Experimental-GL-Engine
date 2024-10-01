@@ -26,6 +26,7 @@ out mat3 TBN;
 out vec3 Normal;
 void main()
 {    
+    vs_out.FragPosLight = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
 
     vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
     mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -39,7 +40,6 @@ void main()
     vs_out.TangentLightPos = TBN * lightPos;
     vs_out.TangentViewPos  = TBN * viewPos;
     vs_out.TangentFragPos  = TBN * vs_out.FragPos;
-    vs_out.FragPosLight = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
     vs_out.TexCoords = aTexCoords;
     
     gl_Position = projection * view * model * vec4(aPos, 1.0);

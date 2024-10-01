@@ -39,9 +39,9 @@ void Renderer::InitializeShaders()
 	_pVAO->Bind();
 	_pVBO = new VBO(_vertices, sizeof(_vertices));
 	_pEBO = new EBO(_indices, sizeof(_indices));
+	//pSkyboxShaderModule = new ShaderModule("shaders/skybox.vert", "shaders/skybox.frag"); // skybox Shader
+	//pCubemapShaderModule = new ShaderModule("shaders/cmBasic.vert", "shaders/cmBasic.frag"); // cubemap Shader
 	pLightingShaderModule = new ShaderModule("shaders/basic_lighting_Shadow.vert", "shaders/basic_lighting_shadow.frag"); // Lighting Shader
-	pSkyboxShaderModule = new ShaderModule("shaders/skybox.vert", "shaders/skybox.frag"); // skybox Shader
-	pCubemapShaderModule = new ShaderModule("shaders/cmBasic.vert", "shaders/cmBasic.frag"); // cubemap Shader
 	pDepthShaderModule = new ShaderModule("shaders/simpleDepth.vert", "shaders/emptyFrag.frag"); // Depthmap Shader
 	pDepthDefferedModule = new ShaderModule("shaders/debugquad.vert", "shaders/debugquad.frag"); // Depthmap Shader
 	//pLightingCubeShaderModule = new ShaderModule("shaders/lightcube_vert.glsl", "shaders/lightcube_frag.glsl"); // LightCubeShader
@@ -51,6 +51,7 @@ void Renderer::InitializeShaders()
 	pAssetManager->loadModelFromPath("Assets/cube.obj");
 	pAssetManager->loadLooseTextures("Assets/textures");
 	pModel = pAssetManager->_ModelMap["cube"];
+	//pModel2 = pAssetManager->_ModelMap["sponza"];
 	//pModel2 = pAssetManager->_ModelMap["sponza"];
 	_vRenderObjects.push_back(new RenderObject(pModel));
 	_vRenderObjects.push_back(new RenderObject(pModel));
@@ -156,18 +157,18 @@ void Renderer::preRender()
 	//pLightingShaderModule->setFloat("pointLights[3].quadratic", 0.032f);
 
 	// spotLight
-	pLightingShaderModule->setVec3("spotLight.position", pCamera->position);
-	pLightingShaderModule->setVec3("spotLight.direction", pCamera->Front);
-	////pLightingShaderModule->setVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
-	////pLightingShaderModule->setVec3("spotLight.diffuse", 0.1f, 0.1f, 0.1f);
-	////pLightingShaderModule->setVec3("spotLight.color", 1.0f, 1.0f, 0.0f);
-	////pLightingShaderModule->setVec3("spotLight.specular", 0.1f, 0.1f, 0.1f);
-	pLightingShaderModule->setFloat("spotLight.constant", 1.0f);
-	pLightingShaderModule->setFloat("spotLight.linear", 0.09f);
-	pLightingShaderModule->setFloat("spotLight.quadratic", 0.032f);
-	pLightingShaderModule->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-	pLightingShaderModule->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-
+	//pLightingShaderModule->setVec3("spotLight.position", spotLight.position);
+	//pLightingShaderModule->setVec3("spotLight.direction", spotLight.direction);
+	//////pLightingShaderModule->setVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
+	//////pLightingShaderModule->setVec3("spotLight.diffuse", 0.1f, 0.1f, 0.1f);
+	//////pLightingShaderModule->setVec3("spotLight.color", 1.0f, 1.0f, 0.0f);
+	//////pLightingShaderModule->setVec3("spotLight.specular", 0.1f, 0.1f, 0.1f);
+	//pLightingShaderModule->setFloat("spotLight.constant", 1.0f);
+	//pLightingShaderModule->setFloat("spotLight.linear", 0.09f);
+	//pLightingShaderModule->setFloat("spotLight.quadratic", 0.032f);
+	//pLightingShaderModule->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+	//pLightingShaderModule->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+	spotLight.setLighting(pLightingShaderModule);
 	pLightingShaderModule->setFloat("material.shininess", 8);
 	pLightingShaderModule->setVec3("viewPos", pCamera->position);
 	pLightingShaderModule->setVec3("viewDir", pCamera->Front);
@@ -239,7 +240,7 @@ void Renderer::Render(ShaderModule* pShader, unsigned int DrawMode = DRAW_MODE_D
 		for (auto r : _vRenderObjects)
 		{
 			if (!r->_excludeFromShadowPass)
-				r->Draw(pShader);
+				r->Draw(pShader, DrawMode);
 		}
 	default:
 		break;
@@ -293,7 +294,7 @@ void Renderer::renderQuad()
 void Renderer::Display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+	//spotLight.position = pCamera->position;
 	//float near_plane = 2.f, far_plane = 100.5f;
 	//// use ortho because directional lights are 'parallel'
 
@@ -301,15 +302,18 @@ void Renderer::Display()
 	//
 	//glm::mat4 lightView = glm::lookAt(directionalLight.direction,
 	//	v3(0.f),
-	//	glm::vec3(1.0f, 1.0f, 1.0f));
-	float near_plane = -10.f, far_plane = 250.f;
-	glm::mat4 lightProjection = glm::ortho(-35.f, 35.f, -35.f, 35.f, near_plane, far_plane);
+	//	glm::vec3(1.0f, 1.0f, 1.0f));	
+	pDepthShaderModule->Use();
 
-	glm::mat4 lightView = glm::lookAt(v3(10) * directionalLight.direction,
-		glm::vec3(0.0f, 0.0f, 0.0f),
+	float near_plane = -10.1f, far_plane = 10.f;;// 0.1f, 
+	// direct light use orthogonal
+	//glm::mat4 lightProjection = glm::ortho(-35.f, 35.f, -35.f, 35.f, near_plane, far_plane);
+	// spotlight persp
+	glm::mat4 lightProjection = glm::perspective(glm::radians(90.f) , 1.f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(spotLight.position,
+		glm::normalize(spotLight.direction) + spotLight.position,
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-	pDepthShaderModule->Use();
 
 	pDepthShaderModule->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	pDepthShaderModule->setMat4("model", glm::mat4(1.f));
@@ -321,6 +325,10 @@ void Renderer::Display()
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	Render(pDepthShaderModule, DRAW_MODE_SHADOWPASS);
+	while (!pShadowFramebuffer->checkComplete())
+	{
+		printf("Framebuffe not complete");
+	}
 	pShadowFramebuffer->Unbind();//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
@@ -341,8 +349,7 @@ void Renderer::Display()
 
 
 		pDepthDefferedModule->Use();
-		pDepthDefferedModule->setFloat("near_plane", near_plane);
-		pDepthDefferedModule->setFloat("far_plane", far_plane);
+	
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
 		//pShadowFramebuffer->_tex->Bind();
@@ -396,6 +403,6 @@ void SpotLight::setLighting(ShaderModule* pShader)
 	pShader->setFloat("spotLight.constant", constant);
 	pShader->setFloat("spotLight.linear", linear);
 	pShader->setFloat("spotLight.quadratic", quadratic);
-	pShader->setFloat("spotLight.cutOff", cutOff);
-	pShader->setFloat("spotLight.outerCutOff", outerCutOff);
+	pShader->setFloat("spotLight.cutOff", cos(glm::radians(cutOff)));
+	pShader->setFloat("spotLight.outerCutOff", cos(glm::radians(outerCutOff)));
 }
