@@ -183,6 +183,9 @@ void Renderer::preRender()
 	pLightingShaderModule->setMat4("view", pCamera->view);
 	pLightingShaderModule->setMat4("model", model);
 
+	pLightingShaderModule->setFloat("biasLow", bias_low);
+	pLightingShaderModule->setFloat("biasHigh", bias_high);
+
 
 	//pLightingShaderModule->setMat4("model", model);
 	//pLightingShaderModule->setMat4("projection", projection);
@@ -240,7 +243,7 @@ void Renderer::Render(ShaderModule* pShader, unsigned int DrawMode = DRAW_MODE_D
 		for (auto r : _vRenderObjects)
 		{
 			if (!r->_excludeFromShadowPass)
-				r->Draw(pShader, DrawMode);
+				r->Draw(pShader);
 		}
 	default:
 		break;
@@ -303,28 +306,30 @@ void Renderer::Display()
 	//glm::mat4 lightView = glm::lookAt(directionalLight.direction,
 	//	v3(0.f),
 	//	glm::vec3(1.0f, 1.0f, 1.0f));	
-	pDepthShaderModule->Use();
 
-	float near_plane = -10.1f, far_plane = 10.f;;// 0.1f, 
+	float near_plane = 0.1f, far_plane = 100.f;;// 0.1f, 
 	// direct light use orthogonal
-	//glm::mat4 lightProjection = glm::ortho(-35.f, 35.f, -35.f, 35.f, near_plane, far_plane);
-	// spotlight persp
-	glm::mat4 lightProjection = glm::perspective(glm::radians(90.f) , 1.f, near_plane, far_plane);
-	glm::mat4 lightView = glm::lookAt(spotLight.position,
-		glm::normalize(spotLight.direction) + spotLight.position,
-		glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+	glm::mat4 lightProjection = glm::perspective(glm::radians(90.F) , 1.f, near_plane, far_plane);
+	//glm::mat4 lightProjection = glm::ortho(-35.F, 35.f, -35.f, 35.f, -100.f, 100.f);
 
+	glm::mat4 lightView = glm::lookAt(spotLight.position,
+		glm::normalize(spotLight.direction),
+		glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+	pDepthShaderModule->Use();
 	pDepthShaderModule->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-	pDepthShaderModule->setMat4("model", glm::mat4(1.f));
+	pDepthShaderModule->setMat4("proj", lightProjection);
+	pDepthShaderModule->setMat4("view", lightView);
+	//pDepthShaderModule->setMat4("model", glm::mat4(1.f));
 	glCullFace(GL_FRONT);
 
 	glEnable(GL_DEPTH_TEST);
 	// 1. render depth of scene to texture (from light's perspective)
-	glViewport(0, 0, 2048, 2048);
+	glViewport(0, 0, 4096, 4096);
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	Render(pDepthShaderModule, DRAW_MODE_SHADOWPASS);
+	Render(pDepthShaderModule); 
+	glGetError();
 	while (!pShadowFramebuffer->checkComplete())
 	{
 		printf("Framebuffe not complete");
@@ -343,7 +348,13 @@ void Renderer::Display()
 	//pShadowFramebuffer->_tex->Bind();
 	pLightingShaderModule->setInt("shadowMap", 31);
 	pLightingShaderModule->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-	Render(pLightingShaderModule);
+
+	if (debug2)
+	{
+		pLightingShaderModule->setMat4("projection", lightProjection);
+		pLightingShaderModule->setMat4("view", lightView);
+	}
+
 	if (debug)
 	{
 
@@ -355,6 +366,8 @@ void Renderer::Display()
 		//pShadowFramebuffer->_tex->Bind();
 		renderQuad();
 	}
+	Render(pLightingShaderModule);
+
 	_pEditorWindow->Draw_Editor();
 
 	

@@ -35,7 +35,7 @@ FBO::FBO(unsigned t = FBO_DEFAULT)
 	{
 		//create Frame Buffer
 		glGenFramebuffers(1, &_framebuffer);
-		const unsigned int W = 2048U, H = 2048U;
+		const unsigned int W = 4096, H = 4096;
 		//_tex = new Texture(W, H, 31, GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_NEAREST);
 
 		// Create texture for the depth map to write to
@@ -49,7 +49,6 @@ FBO::FBO(unsigned t = FBO_DEFAULT)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		/*float borderColor[4] = { 1.0F, 1.0F, 1.0F, 1.0F };
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);*/
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, {255, 255, 255, 255});
 
 		//// attach texture to the framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);

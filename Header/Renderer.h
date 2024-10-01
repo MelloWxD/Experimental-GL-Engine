@@ -145,6 +145,10 @@ public:
 	ShaderModule* pShaderModule;
 	ShaderModule* pLightingShaderModule;
 
+
+    float bias_low = 0.005f;
+    float bias_high = 0.025f;
+
     unsigned int quadVAO;
     unsigned int quadVBO;
 	ShaderModule* pDepthShaderModule;
@@ -238,6 +242,7 @@ public:
     };
 
     bool debug = false;
+    bool debug2 = false;
    
 	unsigned int _indices[6] = {  // note that we start from 0!
 	0, 1, 3,   // first triangle

@@ -89,6 +89,13 @@ void Editor::Draw_Editor()
 		{
 			_pRenderer->debug = !_pRenderer->debug;
 		}
+		if (ImGui::Button("Toggle light pov"))
+		{
+			_pRenderer->debug2 = !_pRenderer->debug2;
+		}
+		dragFloat("Bias low", _pRenderer->bias_low, 0.0000005f, NULL, NULL, "%.7f");
+		dragFloat("Bias high", _pRenderer->bias_high, 0.0000005f, NULL, NULL, "%.7f");
+
 		if (ImGui::TreeNode("Directional Lighting"))
 		{
 			dragVec3("Direction", &_pRenderer->directionalLight.direction, 0.05f);

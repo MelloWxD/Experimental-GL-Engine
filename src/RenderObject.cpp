@@ -34,9 +34,8 @@ void RenderObject::Update()
 void RenderObject::Draw(ShaderModule* pShader, unsigned flag)
 {
 	pShader->Use();
-	if (flag != 1)
-	{
-		pShader->setMat4("model", _mModelMat);
-	}
+	
+	pShader->setMat4("model", _mModelMat);
+	
 	pModel->Draw(pShader);
 }
