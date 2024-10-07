@@ -154,6 +154,7 @@ void Editor::Draw_Editor()
 						}
 					}
 					dragVec3("Position", &pl.pos, 0.5f);
+					dragVec3("Color", &pl.color, 0.5f);
 					dragFloat("Ambient Strength", pl.ambient, 0.005f);
 					ImGui::Spacing();
 					dragFloat("Constant", pl.constant, 0.005f);
@@ -174,8 +175,16 @@ void Editor::Draw_Editor()
 	{
 		ImGui::Begin("Testing Window");
 		int cnt = 1;
+		if (ImGui::Button("Add GameObject"))
+		{
+			RenderObject* n = new RenderObject(v3(0.f), v3(0.f), v3(1.f));
+			n->pModel = pAssManager->_ModelMap["cube"];
+			_pRenderer->_vRenderObjects.push_back(n);
+
+		}
 		for (auto* r : _pRenderer->_vRenderObjects)
 		{
+			
 			if (ImGui::TreeNode((std::to_string(cnt) + " - " + r->_name ).c_str()))
 			{
 				dragVec3("Position", &r->position, 0.05f);

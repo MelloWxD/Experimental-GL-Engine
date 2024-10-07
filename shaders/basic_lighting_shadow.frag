@@ -1,6 +1,6 @@
 #version 330 core
 out vec4 FragColor;
-
+precision highp float;
 struct Material {
     sampler2D texture_diffuse1;
     sampler2D texture_specular1;   
@@ -90,8 +90,8 @@ uniform float biasHigh;
 
 void main()
 {
-    /*
-    vec4 color = texture(material.texture_diffuse1, fs_in.TexCoords); // obtain colour from diffuse/abledo texture
+    
+     vec4 color = texture(material.texture_diffuse1, fs_in.TexCoords); // obtain colour from diffuse/abledo texture
     if (color.a < 0.1)
     {
         discard;
@@ -114,33 +114,30 @@ void main()
         
     res.rgb = pow(res.rgb, vec3(1.0/gamma));
 
-    FragColor = vec4(res, 1.0);
-    */
+    FragColor = vec4(res, 1.0); 
     
-    // Shadows
-    vec3 fragToLight = fs_in.FragPos - pointLights[0].Position;
-    fragToLight.y *= -1;
-	float currentDepth = length(fragToLight);
-    float shadow = 0.0;
+    vec3 lightPos = vec3(0.0, 5.0, 0.0);
+    /*
+    vec3 fragToLight = fs_in.FragPos - lightPos;
+    fragToLight.y *= -1;  // Temporary inversion if needed
+    float currentDepth = length(fragToLight);
     float closestDepth = texture(shadowCubeMap, fragToLight).r * farPlane;
-    if (currentDepth > closestDepth) {
-        shadow = 1.0;
-    }
-    FragColor = vec4(vec3(shadow), 1.0); 
-    
+    float shadow = (currentDepth > closestDepth) ? 1.0 : 0.0;
+    FragColor = vec4(vec3(shadow), 1.0);  
+    */
 } 
 float ShadowCalculationPointLight(PointLight light, vec3 norm, vec3 lightDir)
 {
     // Shadows
     vec3 fragToLight = fs_in.FragPos - light.Position;
 	float currentDepth = length(fragToLight);
-    float shadow = 0.0f;
-	
-	float bias = 0.0f;//max(0.025f * (1.0f - dot(norm, lightDir)), 0.00025f); 
+    float shadow = 0.0;
+	//fragToLight.y *= -1;
+	float bias = max(0.01 * (1.0 - dot(norm, lightDir)), 0.00005); 
 
 	// Not really a radius, more like half the width of a square
 	int sampleRadius = 2;
-	float offset = 0.005f;
+	float offset = 0.025;
 	for(int z = -sampleRadius; z <= sampleRadius; z++)
 	{
 		for(int y = -sampleRadius; y <= sampleRadius; y++)
@@ -152,7 +149,7 @@ float ShadowCalculationPointLight(PointLight light, vec3 norm, vec3 lightDir)
 				// Also notice how the currentDepth is not in the range [0, 1]
 				closestDepth *= farPlane;
 				if (currentDepth > closestDepth + bias)
-					shadow += 1.0f;     
+					shadow += 1.0;     
 		    }    
 		}
 	}
@@ -217,12 +214,12 @@ vec3 calcPointLighting(PointLight light, vec3 norm, vec3 viewDir, vec3 color, fl
     specular *= attentuation;
 
     
-    //float shadow = ShadowCalculationPointLight(light, norm, lightDirection);
+    float shadow = ShadowCalculationPointLight(light, norm, lightDirection);
 
-    float shadow = 0.0;
+    //float shadow = 0.0;
     vec3 fragToLight = fs_in.FragPos - light.Position;
 	float currentDepth = length(fragToLight);
-    float closestDepth = texture(shadowCubeMap, fragToLight).r * farPlane;
+    float closestDepth = texture(shadowCubeMap, normalize(fragToLight)).r * farPlane;
     if (currentDepth > closestDepth) {
         shadow = 1.0;
     }
@@ -338,7 +335,7 @@ vec3 calcSpotLighting(SpotLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 		shadow /= pow((sampleRadius * 2 + 1), 2);
     }
     
-    
+    shadow = 0;
     // Calculate ambient, diffuse, and specular components
     vec3 ambient = light.ambient * color;
     vec3 diffuse = light.diffuse * diff_strength * color;

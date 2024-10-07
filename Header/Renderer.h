@@ -36,18 +36,7 @@ struct SpotLight
     float quadratic = 0.0032f;
     float cutOff = 12.5f;
     float outerCutOff = 15.f;
-    // spotLight
-//pLightingShaderModule->setVec3("spotLight.position", spotLight.position);
-//pLightingShaderModule->setVec3("spotLight.direction", spotLight.direction);
-//////pLightingShaderModule->setVec3("spotLight.ambient", 0.1f, 0.1f, 0.1f);
-//////pLightingShaderModule->setVec3("spotLight.diffuse", 0.1f, 0.1f, 0.1f);
-//////pLightingShaderModule->setVec3("spotLight.color", 1.0f, 1.0f, 0.0f);
-//////pLightingShaderModule->setVec3("spotLight.specular", 0.1f, 0.1f, 0.1f);
-//pLightingShaderModule->setFloat("spotLight.constant", 1.0f);
-//pLightingShaderModule->setFloat("spotLight.linear", 0.09f);
-//pLightingShaderModule->setFloat("spotLight.quadratic", 0.032f);
-//pLightingShaderModule->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-//pLightingShaderModule->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+
     v3 ambient = v3(0);
     v3 diffuse = v3(1.f);
     v3 specular = v3(1.f);;
@@ -80,7 +69,7 @@ struct PointLight
         glm::mat4(1.f)
     };
     // Load the textures of each CM face into shader
-    void setPersp(const glm::mat4& persp, const float& far_Plane)
+    void setPersp(glm::mat4 persp, float far_Plane)
     {
         shadowProj = persp;
         farPlane = far_Plane;
@@ -89,12 +78,12 @@ struct PointLight
     }
     void calcNewViews()
     {
-        cubeMapFaceViews[0] = glm::lookAt(this->pos, this->pos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));  // +X
-        cubeMapFaceViews[1] = glm::lookAt(this->pos, this->pos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)); // -X
-        cubeMapFaceViews[2] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)); // -Y
-        cubeMapFaceViews[3] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));   // +Y
-        cubeMapFaceViews[4] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, 1.0, 0.0));  // +Z
-        cubeMapFaceViews[5] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)); // -Z
+        cubeMapFaceViews[0] = glm::lookAt(this->pos, this->pos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));  // +X
+        cubeMapFaceViews[1] = glm::lookAt(this->pos, this->pos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)); // -X
+        cubeMapFaceViews[2] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));  // +Y (corrected up vector)
+        cubeMapFaceViews[3] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));  // -Y (corrected up vector)
+        cubeMapFaceViews[4] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));  // +Z
+        cubeMapFaceViews[5] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)); // -Z
     }
     void updateCubeFaces()
     {
@@ -119,6 +108,7 @@ struct PointLight
             s += "]";
                 pShader->setMat4(s, shadowTransforms[x]);
             }
+      
         pShader->setVec3("lightPos", pos);
         pShader->setFloat("farPlane", farPlane);
     }

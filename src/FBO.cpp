@@ -15,9 +15,11 @@ FBO::FBO( ShaderModule* pShader, PointLight* pl, unsigned t )
 
 		for (int x = 0; x < 6; ++x)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, 0, GL_DEPTH_COMPONENT32F,
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, 0, GL_DEPTH_COMPONENT,
 				4096, 4096, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 			glGetError();
+
+		
 		}
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -31,9 +33,9 @@ FBO::FBO( ShaderModule* pShader, PointLight* pl, unsigned t )
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// Matrices needed for the light's perspective on all faces of the cubemap
-		//glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, SHADOW_CAST_FARPLANE); // create base perspective
-		//pl->setPersp(shadowProj, SHADOW_CAST_FARPLANE);
-		//pl->loadShadowCubeMapFaces(pShader);
+		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, SHADOW_CAST_FARPLANE); // create base perspective
+		pl->setPersp(shadowProj, SHADOW_CAST_FARPLANE);
+		pl->loadShadowCubeMapFaces(pShader);
 	}
 	else
 	{

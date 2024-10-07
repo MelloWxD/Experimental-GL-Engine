@@ -18,7 +18,7 @@ public:
 		loadFromFile(path);
 	}
 
-	void Draw(ShaderModule* shader);
+	void Draw(ShaderModule* shader, unsigned flag);
 	std::vector<Texture*> _loaded_Textures;
 
 	void loadFromFile(std::string file_path);

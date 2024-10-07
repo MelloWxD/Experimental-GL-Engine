@@ -44,8 +44,6 @@ void Renderer::InitializeShaders()
 	pLightingShaderModule = new ShaderModule("shaders/basic_lighting_Shadow.vert", "shaders/basic_lighting_shadow.frag"); // Lighting Shader
 	pDepthShaderModule = new ShaderModule("shaders/simpleDepth.vert", "shaders/emptyFrag.frag"); // Depthmap Shader
 
-	pDepthDefferedModule = new ShaderModule("shaders/debugquad.vert", "shaders/debugquad.frag"); // debug fullscreen quad Shader
-
 	pPointLightShadowCubemapShader = new ShaderModule("shaders/point_light_shadow_cubemap.vert", "shaders/point_light_shadow_cubemap.frag", "shaders/point_light_shadow_cubemap.geom"); // PointLight Shadowmap Shader
 	//pLightingCubeShaderModule = new ShaderModule("shaders/lightcube_vert.glsl", "shaders/lightcube_frag.glsl"); // LightCubeShader
 	//pModel = new Model("Assets/backpack/backpack.obj");
@@ -60,6 +58,27 @@ void Renderer::InitializeShaders()
 	_vRenderObjects.push_back(new RenderObject(pModel));
 	_vRenderObjects.push_back(new RenderObject(pModel));
 	_vRenderObjects.push_back(new RenderObject(pModel2));
+
+	_vRenderObjects.push_back(new RenderObject(pModel));
+	_vRenderObjects[_vRenderObjects.size() - 1]->position = v3(5, 5, 0);
+	_vRenderObjects.push_back(new RenderObject(pModel));
+	_vRenderObjects[_vRenderObjects.size() - 1]->position = v3(-5, 5, 0);
+
+	_vRenderObjects.push_back(new RenderObject(pModel));
+	_vRenderObjects[_vRenderObjects.size() - 1]->position = v3(0, 5, 5);
+
+	_vRenderObjects.push_back(new RenderObject(pModel));
+	_vRenderObjects[_vRenderObjects.size() - 1]->position = v3(0, 5, -5);
+
+	_vRenderObjects.push_back(new RenderObject(pModel));
+	_vRenderObjects[_vRenderObjects.size() - 1]->position = v3(0, 0, 0);
+
+	_vRenderObjects.push_back(new RenderObject(pModel));
+	_vRenderObjects[_vRenderObjects.size() - 1]->position = v3(0, 10, 0);
+
+
+
+
 	_vRenderObjects[1]->position = v3(0, -15.f, 0);
 	_vRenderObjects[1]->scale = v3(1000, 1, 1000);
 	_vRenderObjects[1]->_excludeFromShadowPass = true;
@@ -94,8 +113,8 @@ void Renderer::InitializeShaders()
 	//glBindTexture(GL_TEXTURE_2D, 0);
 	pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
 	pPointLightShadowFramebuffer = new FBO(pLightingShaderModule, &pointLights[0], FBO::FBO_POINTLIGHT_SHADOWPASS);
-	pDepthDefferedModule->Use();
-	pDepthDefferedModule->setInt("depthMap", 31);
+	/*pDepthDefferedModule->Use();
+	pDepthDefferedModule->setInt("depthMap", 31);*/
 	/*_pSkyboxVAO = new VAO();
 	_pSkyboxVAO->Bind();
 	_pSkyboxVBO = new VBO(skyboxVertices, sizeof(skyboxVertices));
@@ -127,11 +146,12 @@ void Renderer::InitializeShaders()
 
 void Renderer::RenderShadowCubeMap()
 {
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	glm::mat4 lightProjection = glm::perspective(glm::radians(90.F), 1.f, 0.1f, SHADOW_CAST_FARPLANE); // Spot Light
 
-	pointLights[0].setPersp(lightProjection, SHADOW_CAST_FARPLANE);
+	//pointLights[0].setPersp(lightProjection, SHADOW_CAST_FARPLANE);
 	//pointLights[0].setLighting(pPointLightShadowCubemapShader);
 	pointLights[0].loadShadowCubeMapFaces(pPointLightShadowCubemapShader);
 	// render to point light fbo
@@ -140,7 +160,7 @@ void Renderer::RenderShadowCubeMap()
 	pPointLightShadowCubemapShader->setVec3("lightPos", pointLights[0].pos);
 	pPointLightShadowCubemapShader->setFloat("farPlane", SHADOW_CAST_FARPLANE);
 	glm::mat4 model = glm::mat4(1.f);
-	//model = glm::translate(model, -pointLights[0].pos);
+	model = glm::translate(model, -pointLights[0].pos);
 	pPointLightShadowCubemapShader->setMat4("model", model);
 
 	
@@ -148,13 +168,13 @@ void Renderer::RenderShadowCubeMap()
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	Render(pPointLightShadowCubemapShader, DRAW_MODE_SHADOWPASS);
+	
 	while (!pPointLightShadowFramebuffer->checkComplete())
 	{
-		printf("Framebuffe not complete");
+		printf("Framebuffer not complete");
 	}
 	pPointLightShadowFramebuffer->Unbind();//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glClear(GL_DEPTH_BUFFER_BIT);
 }
 void Renderer::preRender()
 {
@@ -337,9 +357,7 @@ void Renderer::Display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	RenderShadowCubeMap();
-	glCullFace(GL_FRONT);
-	glDepthFunc(GL_GEQUAL);
+
 	//spotLight.position = pCamera->position;
 	//float near_plane = 2.f, far_plane = 100.5f;
 	//// use ortho because directional lights are 'parallel'
@@ -374,8 +392,9 @@ void Renderer::Display()
 	// Spot light shadow framebuffer
 	glViewport(0, 0, 4096, 4096);
 	//pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	RenderShadowCubeMap();
 
-	//glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	//Render(pDepthShaderModule); 
 	//glGetError();
 	//while (!pShadowFramebuffer->checkComplete())
@@ -387,7 +406,6 @@ void Renderer::Display()
 
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
 	glViewport(0, 0, SCREEN_RES_X, SCREEN_RES_Y);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glCullFace(GL_BACK);
 
 	preRender();
@@ -411,13 +429,13 @@ void Renderer::Display()
 	{
 
 
-		pDepthDefferedModule->Use();
 	
 		/*glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowFramebuffer->_depthCubemap);*/
 		//pShadowFramebuffer->_tex->Bind();
-		renderQuad();
+		//renderQuad();
 	}
+
 	Render(pLightingShaderModule);
 
 	_pEditorWindow->Draw_Editor();
