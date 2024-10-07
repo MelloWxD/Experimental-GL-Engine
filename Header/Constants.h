@@ -29,3 +29,4 @@ using p2 = glm::vec2; // Shorthand points for clarity when differing between poi
 using p3 = glm::vec3;
 #define WINDOW_NAME "can i get ho yea int b&m"
 #define OPENGL_VERSION "#version 330 core"
+#define SHADOW_CAST_FARPLANE 100.F

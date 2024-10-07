@@ -1,33 +1,46 @@
 #include"..\Header\ShaderModule.h"
 #include <sstream>
 
-ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
+ShaderModule::ShaderModule(const char* vertPath, const char* fragPath, const char* geomPath)
 {
-    // Load text from files into memory
+    // Load text from different shader source files into memory
     std::string vertexCode;
     std::string fragmentCode;
+    std::string geometryCode;
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
+    std::ifstream gShaderFile;
+
     {
        
         // ensure ifstream objects can throw exceptions:
         vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         try
         {
             // open files
             vShaderFile.open(vertPath);
             fShaderFile.open(fragPath);
-            std::stringstream vShaderStream, fShaderStream;
+          
+            std::stringstream vShaderStream, fShaderStream, gShaderStream;
             // read file's buffer contents into streams
             vShaderStream << vShaderFile.rdbuf();
             fShaderStream << fShaderFile.rdbuf();
             // close file handlers
             vShaderFile.close();
             fShaderFile.close();
+         
             // convert stream into string
             vertexCode = vShaderStream.str();
             fragmentCode = fShaderStream.str();
+            if (geomPath != nullptr)
+            {
+                gShaderFile.open(geomPath);
+                gShaderStream << gShaderFile.rdbuf();
+                gShaderFile.close();
+                geometryCode = gShaderStream.str();
+            }
         }
         catch (std::ifstream::failure e)
         {
@@ -38,9 +51,10 @@ ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
     }
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
+    const char* gShaderCode = geometryCode.c_str();
 
     // Compile Shaders
-    unsigned int vertex, fragment;
+    unsigned int vertex, fragment, geom;
     int success;
     char infoLog[512];
 
@@ -66,18 +80,35 @@ ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
     if (!success)
     {
         glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     
         system("pause");
     };
+    if (geomPath != nullptr)
+    {
+        geom = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(geom, 1, &gShaderCode, NULL);
+        glCompileShader(geom);
+        // print compile errors if any
+        glGetShaderiv(geom, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            glGetShaderInfoLog(geom, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
 
-
+            system("pause");
+        };
+    }
+    
   
 
     // shader Program
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
+    if (geomPath != nullptr)
+        glAttachShader(ID, geom);
+
     glLinkProgram(ID);
     // print linking errors if any
     glGetProgramiv(ID, GL_LINK_STATUS, &success);
@@ -91,6 +122,8 @@ ShaderModule::ShaderModule(const char* vertPath, const char* fragPath)
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+    if (geomPath != nullptr)
+        glDeleteShader(geom);
 }
 
 void ShaderModule::Use()

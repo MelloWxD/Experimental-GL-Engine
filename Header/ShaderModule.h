@@ -4,7 +4,7 @@ class ShaderModule
 {
 public:
 	unsigned ID;
-	ShaderModule(const char* vertPath, const char* fragPath);
+	ShaderModule(const char* vertPath, const char* fragPath, const char* geomPath = nullptr);
 
 
 	void Use();

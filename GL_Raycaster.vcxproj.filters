@@ -230,5 +230,8 @@
     <None Include="shaders\debugquad.vert" />
     <None Include="shaders\debugquad.frag" />
     <None Include="shaders\moreShadows.vert" />
+    <None Include="shaders\point_light_shadow_cubemap.vert" />
+    <None Include="shaders\point_light_shadow_cubemap.frag" />
+    <None Include="shaders\point_light_shadow_cubemap.geom" />
   </ItemGroup>
 </Project>

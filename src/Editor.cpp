@@ -65,6 +65,7 @@ void Editor::Draw_Editor()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	static int viewId = 0;
 
 	//ImGui::ShowDemoWindow();
 	buff[0] = _pRenderer->pCamera->speed;
@@ -131,11 +132,29 @@ void Editor::Draw_Editor()
 				if (ImGui::TreeNode(std::string("PointLight - " + std::to_string(x + 1)).c_str()))
 				{
 					auto& pl = _pRenderer->pointLights[x];
+
+					if (ImGui::Button("Recompute Cubemap"))
+					{
+						_pRenderer->RenderShadowCubeMap(); // Re-Render the scene from the six differetn faces to match new position
+
+						pl.loadShadowCubeMapFaces(_pRenderer->pLightingShaderModule); // Update the cubemaps view matrices for sampling
+					}	
+					if (ImGui::Button("Switch to Light View"))
+					{
+						_pRenderer->debug2 = !_pRenderer->debug2; // Re-Render the scene from the six differetn faces to match new position
+
+					}
+					if (_pRenderer->debug2)
+					{
+						ImGui::Text("Current view = %i", viewId);
+						if (ImGui::Button("Toggle Next View"))
+						{
+							viewId = (viewId + 1) % 6;
+							_pRenderer->debugID = viewId;
+						}
+					}
 					dragVec3("Position", &pl.pos, 0.5f);
-					dragVec3("Ambient", &pl.ambient, 0.005f);
-					dragVec3("Diffuse", &pl.diffuse, 0.005f);
-					dragVec3("Specular", &pl.specular, 0.005f);
-					dragVec3("Colour", &pl.color, 0.005f);
+					dragFloat("Ambient Strength", pl.ambient, 0.005f);
 					ImGui::Spacing();
 					dragFloat("Constant", pl.constant, 0.005f);
 					dragFloat("Linear", pl.linear, 0.005f);

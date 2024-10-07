@@ -33,9 +33,22 @@ void RenderObject::Update()
 
 void RenderObject::Draw(ShaderModule* pShader, unsigned flag)
 {
+	if (_excludeFromShadowPass && flag)
+	{
+		return;
+	}
 	pShader->Use();
-	
-	pShader->setMat4("model", _mModelMat);
-	
-	pModel->Draw(pShader);
+	if (flag == 1)
+	{
+		pModel->Draw(pShader);
+
+	}
+	else
+	{
+
+		pShader->setMat4("model", _mModelMat);
+
+		pModel->Draw(pShader);
+	}
 }
+

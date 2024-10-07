@@ -1,8 +1,49 @@
 #include "..\Header\FBO.h"
 #include "..\Header\Texture.h"
+#include "..\Header\ShaderModule.h"
+#include "..\Header\Renderer.h"
 
+FBO::FBO( ShaderModule* pShader, PointLight* pl, unsigned t )
+{
+	if (t == FBO_POINTLIGHT_SHADOWPASS)
+	{
+		//create Frame Buffer
+		glGenFramebuffers(1, &_framebuffer);
+
+		glGenTextures(1, &_depthCubemap);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _depthCubemap);
+
+		for (int x = 0; x < 6; ++x)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, 0, GL_DEPTH_COMPONENT32F,
+				4096, 4096, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+			glGetError();
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		//// attach texture to the framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depthCubemap, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// Matrices needed for the light's perspective on all faces of the cubemap
+		//glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, SHADOW_CAST_FARPLANE); // create base perspective
+		//pl->setPersp(shadowProj, SHADOW_CAST_FARPLANE);
+		//pl->loadShadowCubeMapFaces(pShader);
+	}
+	else
+	{
+		assert(false && "Failed to provide ptr to Shader Module");
+	}
+}
 FBO::FBO(unsigned t = FBO_DEFAULT)
 {
+	const unsigned int W = 4096, H = 4096;
+
 	if (t == FBO_DEFAULT)
 	{
 		glGenFramebuffers(1, &_framebuffer);
@@ -35,7 +76,6 @@ FBO::FBO(unsigned t = FBO_DEFAULT)
 	{
 		//create Frame Buffer
 		glGenFramebuffers(1, &_framebuffer);
-		const unsigned int W = 4096, H = 4096;
 		//_tex = new Texture(W, H, 31, GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_NEAREST);
 
 		// Create texture for the depth map to write to
@@ -58,6 +98,7 @@ FBO::FBO(unsigned t = FBO_DEFAULT)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	
 }
 
 FBO::~FBO()
