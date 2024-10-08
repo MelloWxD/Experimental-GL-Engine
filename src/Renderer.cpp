@@ -322,11 +322,12 @@ void Renderer::Display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	preRender();
 
-	glDisable(GL_CULL_FACE);	//spotLight.position = pCamera->position;
+	glDisable(GL_CULL_FACE);	
+	//spotLight.position = pCamera->position;
 	//float near_plane = 2.f, far_plane = 100.5f;
 	//float near_plane = 0.1f, far_plane = 10000.f;;// 0.1f, 
 	//// direct light use orthogonal
-	////glm::mat4 lightProjection = glm::ortho(-35.F, 35.f, -35.f, 35.f, -100.f, 100.f); // Dir Light
+	//glm::mat4 lightProjection = glm::ortho(-35.F, 35.f, -35.f, 35.f, -100.f, 100.f); // Dir Light
 	//glm::mat4 lightView = glm::lookAt(spotLight.position,
 	//	spotLight.position + glm::normalize(spotLight.direction),
 	//	glm::vec3(0.0f, 0.0f, 1.0f));
@@ -334,18 +335,18 @@ void Renderer::Display()
 	//pointLights[0].setPersp(lightProjection, SHADOW_CAST_FARPLANE);
 	//pointLights[0].setLighting(pPointLightShadowCubemapShader);
 
-	drawDirectionalShadowMap();
+	
 	
 
 	// Resize viewport for shadow map drawing
 	glViewport(0, 0, 4096, 4096);
 
-	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	//RenderShadowCubeMap();
-	Render(pDepthShaderModule, 1);
-	pShadowFramebuffer->Unbind();
-	
+	//pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	//glClear(GL_DEPTH_BUFFER_BIT);
+	////RenderShadowCubeMap();
+	//Render(pDepthShaderModule, 1);
+	//pShadowFramebuffer->Unbind();
+	drawDirectionalShadowMap();
 
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
 	glViewport(0, 0, SCREEN_RES_X, SCREEN_RES_Y);
