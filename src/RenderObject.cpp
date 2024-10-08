@@ -40,18 +40,8 @@ void RenderObject::Draw(ShaderModule* pShader, unsigned flag)
 		return;
 	}
 	pShader->Use();
-	if (flag == 1)
-	{
-		pShader->setMat4("model", _mModelMat);
-		pModel->Draw(pShader, flag);
+	pShader->setMat4("model", _mModelMat);
+	pModel->Draw(pShader, flag);
 
-	}
-	else
-	{
-
-		pShader->setMat4("model", _mModelMat);
-
-		pModel->Draw(pShader, flag);
-	}
 }
 

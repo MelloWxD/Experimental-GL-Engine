@@ -94,15 +94,12 @@ void Editor::Draw_Editor()
 		{
 			_pRenderer->debug2 = !_pRenderer->debug2;
 		}
-		dragFloat("Bias low", _pRenderer->bias_low, 0.0000005f, NULL, NULL, "%.7f");
-		dragFloat("Bias high", _pRenderer->bias_high, 0.0000005f, NULL, NULL, "%.7f");
-
+		
 		if (ImGui::TreeNode("Directional Lighting"))
 		{
 			dragVec3("Direction", &_pRenderer->directionalLight.direction, 0.05f);
-			dragVec3("Ambient", &_pRenderer->directionalLight.ambient, 0.005f);
-			dragVec3("Diffuse", &_pRenderer->directionalLight.diffuse, 0.005f);
-			dragVec3("Specular", &_pRenderer->directionalLight.specular, 0.005f);
+			dragFloat("ambientStrength", _pRenderer->directionalLight.ambientStrength, 0.005f);
+			dragFloat("diffuseStrength", _pRenderer->directionalLight.diffuseStrength, 0.005f);
 			dragVec3("Colour", &_pRenderer->directionalLight.color, 0.005f);
 			_pRenderer->directionalLight.setLighting(_pRenderer->pLightingShaderModule);
 

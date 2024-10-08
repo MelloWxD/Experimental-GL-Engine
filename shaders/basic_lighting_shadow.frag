@@ -36,10 +36,8 @@ uniform SpotLight spotLight;
 struct DirLight
 {
     vec3 direction; // xyz for dir vector and w for power component
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    float diffuseStrength;
+    float ambientStrength;
     vec3 color;
 };
 uniform DirLight dirLight;
@@ -104,12 +102,12 @@ void main()
 
     float kEnergyConservation = ( 8.0 + material.shininess ) / ( 8.0 * kPi ); 
 
-    vec3 res;// = calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
+    vec3 res = calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
         
     }
-     res += calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
+     res += //calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
     //res += calcSpotLighting(spotLight, normal, viewDirection);
         
     res.rgb = pow(res.rgb, vec3(1.0/gamma));
@@ -180,14 +178,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
     return shadow;
 }  
-vec3 gridSamplingDisk[20] = vec3[]
-(
-   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
-   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
-   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
-   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
-   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
-);
+
 
 vec3 calcPointLighting(PointLight light, vec3 norm, vec3 viewDir, vec3 color, float kEnergyConservation)
 {
@@ -240,9 +231,7 @@ vec3 calDirectLighting(DirLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 
 
 
-    float diff_strength = max(dot(norm, -lightDirection), 0.0);
-
-    vec3 reflectDirection = reflect(-lightDirection, norm);
+    float diff_strength = max(dot(norm, lightDirection), 0.0);
 
     float spec = kEnergyConservation * pow(max(dot(viewDir, halfwayDir), 0.0), material.shininess);
 
@@ -273,14 +262,13 @@ vec3 calDirectLighting(DirLight light, vec3 norm, vec3 viewDir, vec3 color, floa
     }
     
 
-    vec3 ambient = light.ambient * color.rgb;
-    vec3 diffuse = diff_strength * color.rgb;
-
+    vec3 ambient = light.ambientStrength * color.rgb;
+    vec3 diffuse = diff_strength * light.diffuseStrength * color.rgb;
     vec3 specular = spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));
-    vec3 emission = vec3(texture(material.texture_emission1, fs_in.TexCoords));
 
   if (material.hasEmission)
-    {
+    {    
+        vec3 emission = vec3(texture(material.texture_emission1, fs_in.TexCoords));
         return (ambient + (diffuse * (1.0 - shadow)) + (specular * (1.0 - shadow)) + emission) * light.color;
 
     }

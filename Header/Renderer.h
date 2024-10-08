@@ -18,12 +18,25 @@ class FBO;
 struct DirLight
 {
     v3 direction = v3(-0.2f, 1.0f, -0.3f);
-    v3 ambient = v3(0.05f);
-    v3 diffuse = v3(1);
-    v3 specular = v3(1);
+    float diffuseStrength = 1.f;
+    float ambientStrength = 0.3f;
     v3 color = v3(1.f);
+    glm::mat4 lightSpaceMatrix;
+    glm::mat4 lightView;
+    void updateView()
+    {
+        // use ortho because directional lights are parallel
+        glm::mat4 lightProjection = glm::ortho(-35.F, 35.f, -35.f, 35.f, 2.f, SHADOW_CAST_FARPLANE);
+
+        lightView = glm::lookAt(direction,
+            v3(0.f),
+            glm::vec3(1.0f, 1.0f, 1.0f));
+        lightSpaceMatrix = lightProjection * lightView;
+
+    }
     void setLighting(ShaderModule* pShader);
 
+    
 
 };
 struct SpotLight
@@ -176,7 +189,7 @@ public:
     void renderQuad();
 
     void RenderShadowCubeMap();
-
+    void drawDirectionalShadowMap();
     void preRender();
 
 	void Display();
