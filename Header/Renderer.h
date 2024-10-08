@@ -26,11 +26,15 @@ struct DirLight
     void updateView()
     {
         // use ortho because directional lights are parallel
-        glm::mat4 lightProjection = glm::ortho(-35.F, 35.f, -35.f, 35.f, 2.f, SHADOW_CAST_FARPLANE);
+        float projSize = 50.f;
+        glm::mat4 lightProjection = glm::ortho(-projSize, projSize, -projSize, projSize, 2.f, SHADOW_CAST_FARPLANE);
 
-        lightView = glm::lookAt(direction,
+        /*lightView = glm::lookAt(direction * v3(10.f),
             v3(0.f),
-            glm::vec3(1.0f, 1.0f, 1.0f));
+            glm::vec3(1.0f, 1.0f, 1.0f));*/
+        lightView = glm::lookAt(-direction * v3(10.f),
+            v3(0.f),
+            glm::vec3(0.0f, 1.0f, 0.0f));
         lightSpaceMatrix = lightProjection * lightView;
 
     }

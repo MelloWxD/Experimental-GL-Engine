@@ -130,7 +130,6 @@ float ShadowCalculationPointLight(PointLight light, vec3 norm, vec3 lightDir)
     vec3 fragToLight = fs_in.FragPos - light.Position;
 	float currentDepth = length(fragToLight);
     float shadow = 0.0;
-	//fragToLight.y *= -1;
 	float bias = max(0.01 * (1.0 - dot(norm, lightDir)), 0.00005); 
 
 	// Not really a radius, more like half the width of a square
@@ -243,7 +242,7 @@ vec3 calDirectLighting(DirLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 		lightCoords = (lightCoords + 1.0) / 2.0;
 		float currentDepth = lightCoords.z;
 		// Prevents shadow acne
-		float bias = max(0.025 * (1.0 - dot(norm, lightDirection)), 0.0005);
+        float bias = max(0.05 * (1.0 - dot(norm, lightDirection)), 0.005);
 
 		// Smoothens out the shadows
 		int sampleRadius = 2;
