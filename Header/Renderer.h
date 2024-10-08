@@ -99,16 +99,17 @@ struct PointLight
     {
         updateCubeFaces();
         pShader->Use();
-        for (int x = 0; x < 6; ++x)
-            {
-                
-                /*std::string s = "pointLights[" + std::to_string(idx);
-                s += "].shadowMatrices[" +std::to_string(x) + "]";*/
-            std::string s = "shadowMatrices[" + std::to_string(x);
-            s += "]";
-                pShader->setMat4(s, shadowTransforms[x]);
-            }
-      
+        //for (int x = 0; x < 6; ++x)
+        //    {
+        //        
+        //        /*std::string s = "pointLights[" + std::to_string(idx);
+        //        s += "].shadowMatrices[" +std::to_string(x) + "]";*/
+        //    std::string s = "shadowMatrices[" + std::to_string(x);
+        //    s += "]";
+        //        pShader->setMat4(s, shadowProj * cubeMapFaceViews[x]);
+        //    }
+        glUniformMatrix4fv(glGetUniformLocation(pShader->ID, "shadowMatrices"), 6, GL_FALSE, glm::value_ptr(shadowTransforms[0]));
+
         pShader->setVec3("lightPos", pos);
         pShader->setFloat("farPlane", farPlane);
     }

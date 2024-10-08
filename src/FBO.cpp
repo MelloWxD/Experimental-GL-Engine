@@ -13,7 +13,7 @@ FBO::FBO( ShaderModule* pShader, PointLight* pl, unsigned t )
 		glGenTextures(1, &_depthCubemap);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, _depthCubemap);
 
-		for (int x = 0; x < 6; ++x)
+		for (unsigned int x = 0; x < 6; ++x)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, 0, GL_DEPTH_COMPONENT,
 				4096, 4096, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);

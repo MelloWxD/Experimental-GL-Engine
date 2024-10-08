@@ -144,7 +144,7 @@ float ShadowCalculationPointLight(PointLight light, vec3 norm, vec3 lightDir)
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-		        float closestDepth = texture(shadowCubeMap, fragToLight + vec3(x, y, z) * offset).r;
+		        float closestDepth = texture(shadowCubeMap, normalize(fragToLight) + vec3(x, y, z) * offset).r;
 				// Remember that we divided by the farPlane?
 				// Also notice how the currentDepth is not in the range [0, 1]
 				closestDepth *= farPlane;

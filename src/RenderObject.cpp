@@ -42,6 +42,7 @@ void RenderObject::Draw(ShaderModule* pShader, unsigned flag)
 	pShader->Use();
 	if (flag == 1)
 	{
+		pShader->setMat4("model", _mModelMat);
 		pModel->Draw(pShader, flag);
 
 	}

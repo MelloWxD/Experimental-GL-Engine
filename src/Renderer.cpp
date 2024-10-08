@@ -50,10 +50,12 @@ void Renderer::InitializeShaders()
 	//pModel2 = new Model("Assets/sponza-gltf-pbr/sponza.glb");
 	//pAssetManager->loadModelFromPath("Assets/sponza-gltf-pbr/sponza.glb");
 	pAssetManager->loadModelFromPath("Assets/cube.obj");
+	pAssetManager->loadModelFromPath("Assets/sponza.glb");
 	pAssetManager->loadModelFromPath("Assets/sphere.fbx");
 	pAssetManager->loadLooseTextures("Assets/textures");
 	pModel = pAssetManager->_ModelMap["cube"];
 	pModel2 = pAssetManager->_ModelMap["cube"];
+	pModel2 = pAssetManager->_ModelMap["sphere"];
 	//pModel2 = pAssetManager->_ModelMap["sponza"];
 	_vRenderObjects.push_back(new RenderObject(pModel));
 	_vRenderObjects.push_back(new RenderObject(pModel));
@@ -112,7 +114,7 @@ void Renderer::InitializeShaders()
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 	pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
-	pPointLightShadowFramebuffer = new FBO(pLightingShaderModule, &pointLights[0], FBO::FBO_POINTLIGHT_SHADOWPASS);
+	pPointLightShadowFramebuffer = new FBO(pPointLightShadowCubemapShader, &pointLights[0], FBO::FBO_POINTLIGHT_SHADOWPASS);
 	/*pDepthDefferedModule->Use();
 	pDepthDefferedModule->setInt("depthMap", 31);*/
 	/*_pSkyboxVAO = new VAO();
@@ -395,13 +397,6 @@ void Renderer::Display()
 	RenderShadowCubeMap();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
-	//Render(pDepthShaderModule); 
-	//glGetError();
-	//while (!pShadowFramebuffer->checkComplete())
-	//{
-	//	printf("Framebuffe not complete");
-	//}
-	//pShadowFramebuffer->Unbind();//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
