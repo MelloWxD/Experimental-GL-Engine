@@ -72,7 +72,9 @@ struct SpotLight
             glm::vec3(0.0f, 0.0f, -1.0f));
         lightSpaceMat = lightProjection * lightView;
     }
-    //FBO* pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
+    void DrawShadowMap(Renderer* pRender, ShaderModule* pShader);
+    void BindShadowMap(ShaderModule* pLightingShader);
+    FBO* pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
 };
 struct PointLight
 {

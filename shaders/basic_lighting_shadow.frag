@@ -29,7 +29,8 @@ struct SpotLight
     float cutOff;
     float outerCutOff;
 
-  
+    sampler2D shadowMap;
+
     vec3 color;
 };
 uniform SpotLight spotLight;
@@ -40,6 +41,7 @@ struct DirLight
     float diffuseStrength;
     float ambientStrength;
     vec3 color;
+    sampler2D shadowMap;
 };
 uniform DirLight dirLight;
 struct PointLight
@@ -71,7 +73,6 @@ in mat3 TBN;
 in vec3 Normal;
 uniform mat4 lightSpaceMatrix;
 uniform sampler2D shadowMap;
-uniform sampler2D shadowSpotMap;
 
 
 uniform samplerCube shadowCubeMap;
@@ -110,7 +111,7 @@ void main()
         
     }
      res += //calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
-    //res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
+    res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
         
     res.rgb = pow(res.rgb, vec3(1.0/gamma));
 
@@ -248,12 +249,12 @@ vec3 calDirectLighting(DirLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 
 		// Smoothens out the shadows
 		int sampleRadius = 2;
-		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
+		vec2 pixelSize = 1.0 / textureSize(light.shadowMap, 0);
 		for(int y = -sampleRadius; y <= sampleRadius; y++)
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-		        float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
+		        float closestDepth = texture(light.shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
 				if (currentDepth > closestDepth + bias)
 					shadow += 1.0f;     
 		    }    
@@ -309,12 +310,12 @@ vec3 calcSpotLighting(SpotLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 
 		// Smoothens out the shadows
 		int sampleRadius = 2;
-		vec2 pixelSize = 1.0 / textureSize(shadowSpotMap, 0);
+		vec2 pixelSize = 1.0 / textureSize(light.shadowMap, 0);
 		for(int y = -sampleRadius; y <= sampleRadius; y++)
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-		        float closestDepth = texture(shadowSpotMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
+		        float closestDepth = texture(light.shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
 				if (currentDepth > closestDepth + bias)
 					shadow += 1.0f;     
 		    }    

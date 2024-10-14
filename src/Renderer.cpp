@@ -351,9 +351,14 @@ void Renderer::Display()
 	//
 	//Render(pDepthShaderModule, 1);
 	//pShadowFramebuffer->Unbind();
-	//drawSpotLightShadowMap();
+	drawSpotLightShadowMap();
 	//drawDirectionalShadowMap();
+
+
+
 	directionalLight.DrawShadowMap(this, pDepthShaderModule);
+	spotLight.DrawShadowMap(this, pDepthShaderModule);
+
 	//RenderShadowCubeMap();
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
 	glViewport(0, 0, SCREEN_RES_X, SCREEN_RES_Y);
@@ -367,9 +372,14 @@ void Renderer::Display()
 	//glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
 	////pShadowFramebuffer->_tex->Bind();
 	//pLightingShaderModule->Use();
-	//pLightingShaderModule->setInt("shadowMap", 31);
-	//directionalLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
+	//pLightingShaderModule->setInt("shadowSpotMap", 31);
+	//spotLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
+
+	
 	directionalLight.BindShadowMap(pLightingShaderModule);
+	spotLight.BindShadowMap(pLightingShaderModule);
+
+
 
 	//spotLight.position = pCamera->position;
 	//spotLight.direction = pCamera->Front;
@@ -439,7 +449,7 @@ void DirLight::BindShadowMap(ShaderModule* pLightingShader)
 	glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
 	//pShadowFramebuffer->_tex->Bind();
 	pLightingShader->Use();
-	pLightingShader->setInt("shadowMap", 31);
+	pLightingShader->setInt("dirLight.shadowMap", 31);
 	setLighting(pLightingShader); // Update and set light info in shader.
 }
 
@@ -476,4 +486,26 @@ void SpotLight::setLighting(ShaderModule* pShader)
 	pShader->setMat4("lightSpaceMatrix", lightSpaceMat);
 	pShader->setFloat("farPlane", farplane);
 
+}
+
+void SpotLight::DrawShadowMap(Renderer* pRender, ShaderModule* pDepthShader)
+{
+	//spotLight.position = pCamera->position;
+	//spotLight.direction = pCamera->Front;
+	setLighting(pDepthShader);
+	pDepthShader->Use();
+	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//RenderShadowCubeMap();
+	pRender->Render(pDepthShader, 1);
+	pShadowFramebuffer->Unbind();
+}
+void SpotLight::BindShadowMap(ShaderModule* pLightingShader)
+{
+	glActiveTexture(GL_TEXTURE30);
+	glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
+	//pShadowFramebuffer->_tex->Bind();
+	pLightingShader->Use();
+	pLightingShader->setInt("spotLight.shadowMap", 30);
+	setLighting(pLightingShader); // Update and set light info in shader.
 }
