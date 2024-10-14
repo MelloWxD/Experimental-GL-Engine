@@ -104,13 +104,13 @@ void main()
 
     float kEnergyConservation = ( 8.0 + material.shininess ) / ( 8.0 * kPi ); 
 
-    vec3 res;//= calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
+    vec3 res = calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
         
     }
      res += //calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
-    res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
+    //res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
         
     res.rgb = pow(res.rgb, vec3(1.0/gamma));
 

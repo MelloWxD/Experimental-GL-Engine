@@ -114,7 +114,7 @@ void Renderer::InitializeShaders()
 	//glReadBuffer(GL_NONE);
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//glBindTexture(GL_TEXTURE_2D, 0);
-	pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
+	pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS); // Moved to classes
 	pPointLightShadowFramebuffer = new FBO(pPointLightShadowCubemapShader, &pointLights[0], FBO::FBO_POINTLIGHT_SHADOWPASS);
 	/*pDepthDefferedModule->Use();
 	pDepthDefferedModule->setInt("depthMap", 31);*/
@@ -190,7 +190,7 @@ void Renderer::preRender()
 	// Direct light
 	
 	directionalLight.setLighting(pLightingShaderModule);
-	spotLight.setLighting(pLightingShaderModule);
+	//spotLight.setLighting(pLightingShaderModule);
 	pLightingShaderModule->Use();
 	pLightingShaderModule->setFloat("material.shininess", 8);
 	pLightingShaderModule->setVec3("viewPos", pCamera->position);
@@ -318,6 +318,18 @@ void Renderer::drawDirectionalShadowMap()
 	Render(pDepthShaderModule, 1);
 	pShadowFramebuffer->Unbind();
 }
+void Renderer::drawSpotLightShadowMap()
+{
+	//spotLight.position = pCamera->position;
+	//spotLight.direction = pCamera->Front;
+	spotLight.setLighting(pDepthShaderModule);
+	pDepthShaderModule->Use();
+	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//RenderShadowCubeMap();
+	Render(pDepthShaderModule, 1);
+	pShadowFramebuffer->Unbind();
+}
 void Renderer::Display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -333,22 +345,15 @@ void Renderer::Display()
 
 	// Resize viewport for shadow map drawing
 	glViewport(0, 0, 4096, 4096);
-	//spotLight.position = pCamera->position;
-	//spotLight.direction = pCamera->Front;
-	spotLight.setLighting(pDepthShaderModule);
-	pDepthShaderModule->Use();
-	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	//RenderShadowCubeMap();
-	Render(pDepthShaderModule, 1);
-	pShadowFramebuffer->Unbind();
+	
 	//pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	//glClear(GL_DEPTH_BUFFER_BIT);
 	//
 	//Render(pDepthShaderModule, 1);
 	//pShadowFramebuffer->Unbind();
-
+	//drawSpotLightShadowMap();
 	//drawDirectionalShadowMap();
+	directionalLight.DrawShadowMap(this, pDepthShaderModule);
 	//RenderShadowCubeMap();
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
 	glViewport(0, 0, SCREEN_RES_X, SCREEN_RES_Y);
@@ -358,15 +363,17 @@ void Renderer::Display()
 
 	
 	// Bind the shadow map
-	glActiveTexture(GL_TEXTURE31);
-	glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
-	//pShadowFramebuffer->_tex->Bind();
-	pLightingShaderModule->Use();
-	pLightingShaderModule->setInt("shadowSpotMap", 31);
-	directionalLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
+	//glActiveTexture(GL_TEXTURE31);
+	//glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
+	////pShadowFramebuffer->_tex->Bind();
+	//pLightingShaderModule->Use();
+	//pLightingShaderModule->setInt("shadowMap", 31);
+	//directionalLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
+	directionalLight.BindShadowMap(pLightingShaderModule);
+
 	//spotLight.position = pCamera->position;
 	//spotLight.direction = pCamera->Front;
-	spotLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
+	//spotLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
 
 	//pLightingShaderModule->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	/*if (debug2)
@@ -412,6 +419,28 @@ void DirLight::setLighting(ShaderModule* pShader)
 	pShader->setFloat("dirLight.ambientStrength", ambientStrength);
 	pShader->setFloat("dirLight.diffuseStrength", diffuseStrength);
 	pShader->setVec3("dirLight.color", color);
+}
+
+void DirLight::DrawShadowMap(Renderer* pRender, ShaderModule* pShader)
+{
+	setLighting(pShader);
+	pShader->Use();
+	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//RenderShadowCubeMap();
+	pRender->Render(pShader, 1);
+	pShadowFramebuffer->Unbind();
+}
+
+void DirLight::BindShadowMap(ShaderModule* pLightingShader)
+{
+	// Bind the shadow map
+	glActiveTexture(GL_TEXTURE31);
+	glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
+	//pShadowFramebuffer->_tex->Bind();
+	pLightingShader->Use();
+	pLightingShader->setInt("shadowMap", 31);
+	setLighting(pLightingShader); // Update and set light info in shader.
 }
 
 void PointLight::setLighting(ShaderModule* pShader)

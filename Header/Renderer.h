@@ -1,6 +1,7 @@
 #pragma once
 #include"Constants.h"
 #include"ShaderModule.h"
+#include"FBO.h"
 
 class AssetManager;
 class RenderObject;
@@ -8,18 +9,17 @@ class Editor;
 class Window;
 class Camera;
 class Model;
-
+class Renderer;
 // Buffer Object forward decs
 class VBO;
 class VAO;
 class EBO;
-class FBO;
 
 struct DirLight
 {
     v3 direction = v3(-0.2f, 1.0f, -0.3f);
     float diffuseStrength = 1.f;
-    float ambientStrength = 0.3f;
+    float ambientStrength = 0.03f;
     v3 color = v3(1.f);
     glm::mat4 lightSpaceMatrix;
     glm::mat4 lightView;
@@ -39,8 +39,11 @@ struct DirLight
 
     }
     void setLighting(ShaderModule* pShader);
-
     
+
+    void DrawShadowMap(Renderer* pRender, ShaderModule* pShader);
+    void BindShadowMap(ShaderModule* pLightingShader);
+    FBO* pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
 
 };
 struct SpotLight
@@ -69,6 +72,7 @@ struct SpotLight
             glm::vec3(0.0f, 0.0f, -1.0f));
         lightSpaceMat = lightProjection * lightView;
     }
+    //FBO* pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
 };
 struct PointLight
 {
@@ -200,6 +204,7 @@ public:
     void Render(ShaderModule* pShader, unsigned int DrawMode);
 
     void renderQuad();
+    void drawSpotLightShadowMap();
 
     void RenderShadowCubeMap();
     void drawDirectionalShadowMap();
