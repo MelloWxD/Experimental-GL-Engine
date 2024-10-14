@@ -108,13 +108,13 @@ void Editor::Draw_Editor()
 		if (ImGui::TreeNode("Torch Settings"))
 		{
 			auto& sl = _pRenderer->spotLight;
+			dragFloat("farplane", sl.farplane, 0.05f);
 			dragVec3("Position [STATIC]", &sl.position, 0.05f);
-			dragVec3("Direction [STATIC]", &sl.direction, 0.05f);
-			dragVec3("Ambient", &sl.ambient, 0.005f);
-			dragVec3("Diffuse", &sl.diffuse, 0.005f);
+			dragVec3("Direction [STATIC]", &sl.direction, 0.005f);
+			dragFloat("Ambient", sl.ambientStrength, 0.005f);
+			dragFloat("Diffuse", sl.diffuseStrength, 0.005f);
 			dragFloat("cutOff", sl.cutOff, 0.005f);
 			dragFloat("outerCutOff", sl.outerCutOff, 0.005f);
-			dragVec3("Specular", &sl.specular, 0.005f);
 			dragVec3("Colour", &sl.color, 0.005f);
 			dragFloat("Constant", sl.constant, 0.005f);
 			dragFloat("Linear", sl.linear, 0.005f);

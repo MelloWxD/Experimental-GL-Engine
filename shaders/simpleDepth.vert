@@ -9,6 +9,6 @@ out vec4 FragPos;
 void main()
 {
     FragPos = model * vec4(aPos, 1.0);
-    gl_Position = lightSpaceMatrix * FragPos;
-    //gl_Position = proj * view * model  * vec4(aPos, 1.0);
+    //gl_Position = lightSpaceMatrix * model * FragPos;
+    gl_Position = lightSpaceMatrix * model  * vec4(aPos, 1.0);
 }  

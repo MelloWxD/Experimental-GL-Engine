@@ -20,15 +20,16 @@ struct SpotLight
     vec3 position;
     vec3 direction; // xyz for dir vector and w for power component
 
+    float ambientStrength;
+    float diffuseStrength;
+
     float constant;
     float linear;
     float quadratic;
     float cutOff;
     float outerCutOff;
 
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+  
     vec3 color;
 };
 uniform SpotLight spotLight;
@@ -70,6 +71,7 @@ in mat3 TBN;
 in vec3 Normal;
 uniform mat4 lightSpaceMatrix;
 uniform sampler2D shadowMap;
+uniform sampler2D shadowSpotMap;
 
 
 uniform samplerCube shadowCubeMap;
@@ -102,13 +104,13 @@ void main()
 
     float kEnergyConservation = ( 8.0 + material.shininess ) / ( 8.0 * kPi ); 
 
-    vec3 res = calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
+    vec3 res;//= calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
         
     }
      res += //calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
-    //res += calcSpotLighting(spotLight, normal, viewDirection);
+    res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
         
     res.rgb = pow(res.rgb, vec3(1.0/gamma));
 
@@ -260,7 +262,6 @@ vec3 calDirectLighting(DirLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 		shadow /= pow((sampleRadius * 2 + 1), 2);
     }
     
-
     vec3 ambient = light.ambientStrength * color.rgb;
     vec3 diffuse = diff_strength * light.diffuseStrength * color.rgb;
     vec3 specular = spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));
@@ -283,37 +284,37 @@ vec3 calcSpotLighting(SpotLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 
   
     float diff_strength = max(dot(norm, lightDirection), 0.0);
-    vec3 reflectDirection = reflect(-lightDirection, norm);
     float spec = kEnergyConservation * pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
 
-    // Calculate the spotlight effect (cosine-based)
-    float theta = dot(normalize(-lightDirection), normalize(light.direction));
-    float epsilon = light.cutOff - light.outerCutOff;
-    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-
-    // Attenuation based on distance
+    // Attenuation
     float distance = length(light.position - fs_in.FragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
+    // Calculate the spotlight effect (cosine-based)
+    float theta = dot(lightDirection, normalize(-light.direction));
+    float epsilon = light.cutOff - light.outerCutOff;
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
+    
     //float shadow = ShadowCalculation(fs_in.FragPosLight);       
-     float shadow = 0.0;
+    float shadow = 0.0;
     vec3 lightCoords = fs_in.FragPosLight.xyz / fs_in.FragPosLight.w;
-    if (lightCoords.z <= 1.0)
+       if (lightCoords.z <= 1.0)
     {
        	// Get from [-1, 1] range to [0, 1] range just like the shadow map
 		lightCoords = (lightCoords + 1.0) / 2.0;
 		float currentDepth = lightCoords.z;
 		// Prevents shadow acne
-        float bias = 0.0000045;//max(biasHigh, biasLow * (1.0 - dot(norm, lightDirection))); // low = 0.0000045
+        float bias = max(0.0025 * (1.0 - dot(norm, lightDirection)), 0.00025);
 
 		// Smoothens out the shadows
 		int sampleRadius = 2;
-		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
+		vec2 pixelSize = 1.0 / textureSize(shadowSpotMap, 0);
 		for(int y = -sampleRadius; y <= sampleRadius; y++)
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-		        float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
+		        float closestDepth = texture(shadowSpotMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
 				if (currentDepth > closestDepth + bias)
 					shadow += 1.0f;     
 		    }    
@@ -322,12 +323,10 @@ vec3 calcSpotLighting(SpotLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 		shadow /= pow((sampleRadius * 2 + 1), 2);
     }
     
-    shadow = 0;
     // Calculate ambient, diffuse, and specular components
-    vec3 ambient = light.ambient * color;
-    vec3 diffuse = light.diffuse * diff_strength * color;
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));
-    vec3 emission = vec3(texture(material.texture_emission1, fs_in.TexCoords));
+    vec3 ambient = light.ambientStrength * color;
+    vec3 diffuse = light.diffuseStrength * diff_strength * color;
+    vec3 specular = spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));
 
     // Apply attenuation and intensity
     diffuse *= intensity * attenuation;
@@ -335,7 +334,9 @@ vec3 calcSpotLighting(SpotLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 
    
   if (material.hasEmission)
-    {
+    {    
+        vec3 emission = vec3(texture(material.texture_emission1, fs_in.TexCoords));
+
         return (ambient + (diffuse * (1.0 - shadow)) + (specular * (1.0 - shadow)) + emission) * light.color;
 
     }

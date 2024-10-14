@@ -50,16 +50,17 @@ void Renderer::InitializeShaders()
 	//pModel2 = new Model("Assets/sponza-gltf-pbr/sponza.glb");
 	//pAssetManager->loadModelFromPath("Assets/sponza-gltf-pbr/sponza.glb");
 	pAssetManager->loadModelFromPath("Assets/cube.obj");
-	//pAssetManager->loadModelFromPath("Assets/sponza.glb");
+	pAssetManager->loadModelFromPath("Assets/sponza.glb");
 	pAssetManager->loadModelFromPath("Assets/sphere.fbx");
 	pAssetManager->loadLooseTextures("Assets/textures");
 	pModel = pAssetManager->_ModelMap["cube"];
-	pModel2 = pAssetManager->_ModelMap["cube"];
+	pModel2 = pAssetManager->_ModelMap["sponza"];
 	pModel2 = pAssetManager->_ModelMap["sphere"];
 	//pModel2 = pAssetManager->_ModelMap["sponza"];
 	_vRenderObjects.push_back(new RenderObject(pModel));
 	_vRenderObjects.push_back(new RenderObject(pModel));
 	_vRenderObjects.push_back(new RenderObject(pModel2));
+	_vRenderObjects[_vRenderObjects.size() - 1]->scale = v3(.5f);
 
 	_vRenderObjects.push_back(new RenderObject(pModel));
 	_vRenderObjects[_vRenderObjects.size() - 1]->position = v3(5, 5, 0);
@@ -151,7 +152,7 @@ void Renderer::RenderShadowCubeMap()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	glm::mat4 lightProjection = glm::perspective(glm::radians(90.F), 1.f, 0.1f, SHADOW_CAST_FARPLANE); // Spot Light
+	//glm::mat4 lightProjection = glm::perspective(glm::radians(90.F), 1.f, 0.1f, SHADOW_CAST_FARPLANE); // Spot Light
 
 	//pointLights[0].setPersp(lightProjection, SHADOW_CAST_FARPLANE);
 	//pointLights[0].setLighting(pPointLightShadowCubemapShader);
@@ -187,8 +188,8 @@ void Renderer::preRender()
 
 	// view/projection transformations
 	// Direct light
-	//directionalLight.setLighting(pLightingShaderModule);
-
+	
+	directionalLight.setLighting(pLightingShaderModule);
 	spotLight.setLighting(pLightingShaderModule);
 	pLightingShaderModule->Use();
 	pLightingShaderModule->setFloat("material.shininess", 8);
@@ -323,14 +324,6 @@ void Renderer::Display()
 	preRender();
 
 	glDisable(GL_CULL_FACE);	
-	//spotLight.position = pCamera->position;
-	//float near_plane = 2.f, far_plane = 100.5f;
-	//float near_plane = 0.1f, far_plane = 10000.f;;// 0.1f, 
-	//// direct light use orthogonal
-	//glm::mat4 lightProjection = glm::ortho(-35.F, 35.f, -35.f, 35.f, -100.f, 100.f); // Dir Light
-	//glm::mat4 lightView = glm::lookAt(spotLight.position,
-	//	spotLight.position + glm::normalize(spotLight.direction),
-	//	glm::vec3(0.0f, 0.0f, 1.0f));
 
 	//pointLights[0].setPersp(lightProjection, SHADOW_CAST_FARPLANE);
 	//pointLights[0].setLighting(pPointLightShadowCubemapShader);
@@ -340,14 +333,23 @@ void Renderer::Display()
 
 	// Resize viewport for shadow map drawing
 	glViewport(0, 0, 4096, 4096);
-
+	//spotLight.position = pCamera->position;
+	//spotLight.direction = pCamera->Front;
+	spotLight.setLighting(pDepthShaderModule);
+	pDepthShaderModule->Use();
+	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//RenderShadowCubeMap();
+	Render(pDepthShaderModule, 1);
+	pShadowFramebuffer->Unbind();
 	//pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	//glClear(GL_DEPTH_BUFFER_BIT);
-	////RenderShadowCubeMap();
+	//
 	//Render(pDepthShaderModule, 1);
 	//pShadowFramebuffer->Unbind();
-	drawDirectionalShadowMap();
 
+	//drawDirectionalShadowMap();
+	//RenderShadowCubeMap();
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
 	glViewport(0, 0, SCREEN_RES_X, SCREEN_RES_Y);
 	glEnable(GL_CULL_FACE);
@@ -360,8 +362,11 @@ void Renderer::Display()
 	glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
 	//pShadowFramebuffer->_tex->Bind();
 	pLightingShaderModule->Use();
-	pLightingShaderModule->setInt("shadowMap", 31);
+	pLightingShaderModule->setInt("shadowSpotMap", 31);
 	directionalLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
+	//spotLight.position = pCamera->position;
+	//spotLight.direction = pCamera->Front;
+	spotLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
 
 	//pLightingShaderModule->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	/*if (debug2)
@@ -370,13 +375,15 @@ void Renderer::Display()
 		pLightingShaderModule->setMat4("view", pointLights[0].cubeMapFaceViews[debugID]);
 	}*/
 
-	if (!debug)
+	if (debug)
 	{
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, pShadowFramebuffer->_tex);
 		// Use your debugging shader to visualize depth
 		pDepthDefferedModule->Use();
 		pDepthDefferedModule->setInt("shadowMap", 0);
+		pDepthDefferedModule->setFloat("near_plane", 1.f);
+		pDepthDefferedModule->setFloat("far_plane", SHADOW_CAST_FARPLANE);
 		renderQuad();
 	}
 	else
@@ -425,16 +432,19 @@ void PointLight::setLighting(ShaderModule* pShader)
 
 void SpotLight::setLighting(ShaderModule* pShader)
 {
+	updateView();
 	pShader->Use();
 	pShader->setVec3("spotLight.position", position);
 	pShader->setVec3("spotLight.direction", direction);
-	pShader->setVec3("spotLight.ambient", ambient);
-	pShader->setVec3("spotLight.diffuse", diffuse);
+	pShader->setFloat("spotLight.ambientStrength", ambientStrength);
+	pShader->setFloat("spotLight.diffuse", diffuseStrength);
 	pShader->setVec3("spotLight.color", color);
-	pShader->setVec3("spotLight.specular", specular);
 	pShader->setFloat("spotLight.constant", constant);
 	pShader->setFloat("spotLight.linear", linear);
 	pShader->setFloat("spotLight.quadratic", quadratic);
 	pShader->setFloat("spotLight.cutOff", cos(glm::radians(cutOff)));
 	pShader->setFloat("spotLight.outerCutOff", cos(glm::radians(outerCutOff)));
+	pShader->setMat4("lightSpaceMatrix", lightSpaceMat);
+	pShader->setFloat("farPlane", farplane);
+
 }

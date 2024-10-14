@@ -54,12 +54,21 @@ struct SpotLight
     float cutOff = 12.5f;
     float outerCutOff = 15.f;
 
-    v3 ambient = v3(0);
-    v3 diffuse = v3(1.f);
-    v3 specular = v3(1.f);;
+    float ambientStrength = 0.f;
+    float diffuseStrength = 1.f;
+    float farplane = SHADOW_CAST_FARPLANE;
+    glm::mat4 lightSpaceMat;
     v3 color = v3(1.f);;
     void setLighting(ShaderModule* pShader);
-
+    void updateView()
+    {
+        // direct light use orthogonal
+        glm::mat4 lightProjection = glm::perspective(glm::radians(90.f), 1.f, 1.f,  farplane); 
+        glm::mat4 lightView = glm::lookAt(position,
+            position + glm::normalize(direction),
+            glm::vec3(0.0f, 0.0f, -1.0f));
+        lightSpaceMat = lightProjection * lightView;
+    }
 };
 struct PointLight
 {
