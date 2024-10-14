@@ -7,7 +7,7 @@ class PointLight;
 class FBO
 {
 public:
-	FBO( ShaderModule* pShader, PointLight* pl, unsigned t = FBO_DEFAULT);
+	FBO(PointLight* pl, unsigned t = FBO_DEFAULT);
 	FBO(unsigned t);
 	~FBO();
 

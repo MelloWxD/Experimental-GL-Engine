@@ -3,7 +3,7 @@
 #include "..\Header\ShaderModule.h"
 #include "..\Header\Renderer.h"
 
-FBO::FBO( ShaderModule* pShader, PointLight* pl, unsigned t )
+FBO::FBO( PointLight* pl, unsigned t )
 {
 	if (t == FBO_POINTLIGHT_SHADOWPASS)
 	{
@@ -35,7 +35,6 @@ FBO::FBO( ShaderModule* pShader, PointLight* pl, unsigned t )
 		// Matrices needed for the light's perspective on all faces of the cubemap
 		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, SHADOW_CAST_FARPLANE); // create base perspective
 		pl->setPersp(shadowProj, SHADOW_CAST_FARPLANE);
-		pl->loadShadowCubeMapFaces(pShader);
 	}
 	else
 	{

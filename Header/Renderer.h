@@ -145,7 +145,11 @@ struct PointLight
         pShader->setVec3("lightPos", pos);
         pShader->setFloat("farPlane", farPlane);
     }
-    
+
+    void DrawShadowMap(Renderer* pRender, ShaderModule* pCubemapShader, ShaderModule* pLightingShader);
+    void BindShadowMap(ShaderModule* pLightingShader);
+    FBO* pShadowFramebuffer = new FBO(this, FBO::FBO_POINTLIGHT_SHADOWPASS);
+
 };
 class Renderer
 {

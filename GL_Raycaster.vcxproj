@@ -161,6 +161,7 @@
     <ClCompile Include="External\include\imgui\ImGradient.cpp" />
     <ClCompile Include="External\include\imgui\ImGuizmo.cpp" />
     <ClCompile Include="External\include\imgui\ImSequencer.cpp" />
+    <ClCompile Include="src\LightCasters.cpp" />
     <ClCompile Include="src\RenderObject.cpp" />
     <ClCompile Include="src\Editor.cpp" />
     <ClCompile Include="External\include\imgui\imgui.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Header\FBO.h" />
     <ClInclude Include="Header\Framework.h" />
     <ClInclude Include="Header\Constants.h" />
+    <ClInclude Include="Header\LightCasters.h" />
     <ClInclude Include="Header\VAO.h" />
     <ClInclude Include="Header\Vertex.h" />
     <ClInclude Include="Header\Window.h" />

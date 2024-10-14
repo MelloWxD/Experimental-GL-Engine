@@ -115,7 +115,7 @@ void Renderer::InitializeShaders()
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 	pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS); // Moved to classes
-	pPointLightShadowFramebuffer = new FBO(pPointLightShadowCubemapShader, &pointLights[0], FBO::FBO_POINTLIGHT_SHADOWPASS);
+	pPointLightShadowFramebuffer = new FBO(&pointLights[0], FBO::FBO_POINTLIGHT_SHADOWPASS);
 	/*pDepthDefferedModule->Use();
 	pDepthDefferedModule->setInt("depthMap", 31);*/
 	/*_pSkyboxVAO = new VAO();
@@ -156,6 +156,7 @@ void Renderer::RenderShadowCubeMap()
 
 	//pointLights[0].setPersp(lightProjection, SHADOW_CAST_FARPLANE);
 	//pointLights[0].setLighting(pPointLightShadowCubemapShader);
+
 	pointLights[0].loadShadowCubeMapFaces(pPointLightShadowCubemapShader);
 	// render to point light fbo
 	pPointLightShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
@@ -351,13 +352,13 @@ void Renderer::Display()
 	//
 	//Render(pDepthShaderModule, 1);
 	//pShadowFramebuffer->Unbind();
-	drawSpotLightShadowMap();
+	//drawSpotLightShadowMap();
 	//drawDirectionalShadowMap();
+	pointLights[0].DrawShadowMap(this, pPointLightShadowCubemapShader, pLightingShaderModule);
 
 
-
-	directionalLight.DrawShadowMap(this, pDepthShaderModule);
-	spotLight.DrawShadowMap(this, pDepthShaderModule);
+	/*directionalLight.DrawShadowMap(this, pDepthShaderModule);
+	spotLight.DrawShadowMap(this, pDepthShaderModule);*/
 
 	//RenderShadowCubeMap();
 	// 2. RESET VIEWPORT then render scene as normal with shadow mapping (using depth map)
@@ -375,9 +376,10 @@ void Renderer::Display()
 	//pLightingShaderModule->setInt("shadowSpotMap", 31);
 	//spotLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
 
-	
+	/*
 	directionalLight.BindShadowMap(pLightingShaderModule);
-	spotLight.BindShadowMap(pLightingShaderModule);
+	spotLight.BindShadowMap(pLightingShaderModule);*/
+	pointLights[0].BindShadowMap(pLightingShaderModule);
 
 
 
@@ -467,6 +469,55 @@ void PointLight::setLighting(ShaderModule* pShader)
 	pShader->setFloat(std::string(entry + "constant").c_str(), constant);
 	pShader->setFloat(std::string(entry + "linear").c_str(), linear);
 	pShader->setFloat(std::string(entry + "quadratic").c_str(), quadratic);
+}
+
+void PointLight::BindShadowMap(ShaderModule* pLightingShader)
+{	
+	glActiveTexture(GL_TEXTURE29);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowFramebuffer->_depthCubemap);
+	//pShadowFramebuffer->_tex->Bind();
+	pLightingShader->Use();
+	std::string entry = "pointLights[" + std::to_string(idx) + "]."; 
+
+	pLightingShader->setInt(entry + "shadowCubeMap", 29);
+	setLighting(pLightingShader); // Update and set light info in shader.
+
+}
+
+void PointLight::DrawShadowMap(Renderer* pRender, ShaderModule* pCubemapShader, ShaderModule* pLightingShader)
+{
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	//glm::mat4 lightProjection = glm::perspective(glm::radians(90.F), 1.f, 0.1f, SHADOW_CAST_FARPLANE); // Spot Light
+
+	//pointLights[0].setPersp(lightProjection, SHADOW_CAST_FARPLANE);
+	//pointLights[0].setLighting(pPointLightShadowCubemapShader);
+
+	loadShadowCubeMapFaces(pCubemapShader);
+	// render to point light fbo
+	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	pCubemapShader->Use();
+	pCubemapShader->setVec3("lightPos", pos);
+	pCubemapShader->setFloat("farPlane", SHADOW_CAST_FARPLANE);
+	glm::mat4 model = glm::mat4(1.f);
+	model = glm::translate(model, -pos);
+	pCubemapShader->setMat4("model", model);
+
+
+	glGetError();
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	pRender->Render(pCubemapShader, 1); // 1 for DRAW_MODE_SHADOWPASS
+
+	while (!pShadowFramebuffer->checkComplete())
+	{
+		printf("Framebuffer not complete");
+	}
+	pShadowFramebuffer->Unbind();//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glActiveTexture(GL_TEXTURE29);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, pShadowFramebuffer->_depthCubemap);
+	pLightingShader->setFloat("farPlane", SHADOW_CAST_FARPLANE);
 }
 
 void SpotLight::setLighting(ShaderModule* pShader)

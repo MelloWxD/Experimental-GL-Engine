@@ -53,7 +53,7 @@ struct PointLight
     float constant;
     float linear;
     float quadratic;
-
+    samplerCube shadowCubeMap;
     mat4 shadowMatrices[6];
    
 };
@@ -75,7 +75,7 @@ uniform mat4 lightSpaceMatrix;
 uniform sampler2D shadowMap;
 
 
-uniform samplerCube shadowCubeMap;
+
 uniform float farPlane;
 
 
@@ -105,27 +105,19 @@ void main()
 
     float kEnergyConservation = ( 8.0 + material.shininess ) / ( 8.0 * kPi ); 
 
-    vec3 res = calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
+    vec3 res;// = calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
         
     }
-     res += //calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
-    res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
+     res += calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
+    //res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
         
     res.rgb = pow(res.rgb, vec3(1.0/gamma));
 
     FragColor = vec4(res, 1.0); 
     
-    vec3 lightPos = vec3(0.0, 5.0, 0.0);
-    /*
-    vec3 fragToLight = fs_in.FragPos - lightPos;
-    fragToLight.y *= -1;  // Temporary inversion if needed
-    float currentDepth = length(fragToLight);
-    float closestDepth = texture(shadowCubeMap, fragToLight).r * farPlane;
-    float shadow = (currentDepth > closestDepth) ? 1.0 : 0.0;
-    FragColor = vec4(vec3(shadow), 1.0);  
-    */
+
 } 
 float ShadowCalculationPointLight(PointLight light, vec3 norm, vec3 lightDir)
 {
@@ -144,7 +136,7 @@ float ShadowCalculationPointLight(PointLight light, vec3 norm, vec3 lightDir)
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-		        float closestDepth = texture(shadowCubeMap, normalize(fragToLight) + vec3(x, y, z) * offset).r;
+		        float closestDepth = texture(light.shadowCubeMap, normalize(fragToLight) + vec3(x, y, z) * offset).r;
 				// Remember that we divided by the farPlane?
 				// Also notice how the currentDepth is not in the range [0, 1]
 				closestDepth *= farPlane;
@@ -209,13 +201,7 @@ vec3 calcPointLighting(PointLight light, vec3 norm, vec3 viewDir, vec3 color, fl
     
     float shadow = ShadowCalculationPointLight(light, norm, lightDirection);
 
-    //float shadow = 0.0;
-    vec3 fragToLight = fs_in.FragPos - light.Position;
-	float currentDepth = length(fragToLight);
-    float closestDepth = texture(shadowCubeMap, normalize(fragToLight)).r * farPlane;
-    if (currentDepth > closestDepth) {
-        shadow = 1.0;
-    }
+   
     if (material.hasEmission)
     {   
         vec3 emission = vec3(texture(material.texture_emission1, fs_in.TexCoords));
