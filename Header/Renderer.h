@@ -2,155 +2,19 @@
 #include"Constants.h"
 #include"ShaderModule.h"
 #include"FBO.h"
-
+#include"LightCasters.h"
 class AssetManager;
 class RenderObject;
 class Editor;
 class Window;
 class Camera;
 class Model;
-class Renderer;
 // Buffer Object forward decs
 class VBO;
 class VAO;
 class EBO;
 
-struct DirLight
-{
-    v3 direction = v3(-0.2f, 1.0f, -0.3f);
-    float diffuseStrength = 1.f;
-    float ambientStrength = 0.03f;
-    v3 color = v3(1.f);
-    glm::mat4 lightSpaceMatrix;
-    glm::mat4 lightView;
-    void updateView()
-    {
-        // use ortho because directional lights are parallel
-        float projSize = 50.f;
-        glm::mat4 lightProjection = glm::ortho(-projSize, projSize, -projSize, projSize, 2.f, SHADOW_CAST_FARPLANE);
 
-        /*lightView = glm::lookAt(direction * v3(10.f),
-            v3(0.f),
-            glm::vec3(1.0f, 1.0f, 1.0f));*/
-        lightView = glm::lookAt(-direction * v3(10.f),
-            v3(0.f),
-            glm::vec3(0.0f, 1.0f, 0.0f));
-        lightSpaceMatrix = lightProjection * lightView;
-
-    }
-    void setLighting(ShaderModule* pShader);
-    
-
-    void DrawShadowMap(Renderer* pRender, ShaderModule* pShader);
-    void BindShadowMap(ShaderModule* pLightingShader);
-    FBO* pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
-
-};
-struct SpotLight
-{
-    v3 position = v3(0, 10, 0);
-    v3 direction = v3(0, -1, 0); 
-
-    float constant = 1.f;
-    float linear = 0.09f;
-    float quadratic = 0.0032f;
-    float cutOff = 12.5f;
-    float outerCutOff = 15.f;
-
-    float ambientStrength = 0.f;
-    float diffuseStrength = 1.f;
-    float farplane = SHADOW_CAST_FARPLANE;
-    glm::mat4 lightSpaceMat;
-    v3 color = v3(1.f);;
-    void setLighting(ShaderModule* pShader);
-    void updateView()
-    {
-        // direct light use orthogonal
-        glm::mat4 lightProjection = glm::perspective(glm::radians(90.f), 1.f, 1.f,  farplane); 
-        glm::mat4 lightView = glm::lookAt(position,
-            position + glm::normalize(direction),
-            glm::vec3(0.0f, 0.0f, -1.0f));
-        lightSpaceMat = lightProjection * lightView;
-    }
-    void DrawShadowMap(Renderer* pRender, ShaderModule* pShader);
-    void BindShadowMap(ShaderModule* pLightingShader);
-    FBO* pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
-};
-struct PointLight
-{
-
-    v3 pos = v3(0.f, 5.f, 0.f);
-    float ambient = 0.3f;
-
-    v3 color = v3(1.f);
-    float constant = 1.f;
-    float linear = 0.009f;
-    float quadratic = 0.032f;
-    float farPlane = 1000.f;
-    int idx = -1;
-    void setLighting(ShaderModule* pShader);
-    glm::mat4 shadowProj;
-    glm::mat4 cubeMapFaceViews[6];
-    glm::mat4 shadowTransforms[6] = // then for each face of the cubemap
-    {
-        glm::mat4(1.f),
-        glm::mat4(1.f),
-        glm::mat4(1.f),
-        glm::mat4(1.f),
-        glm::mat4(1.f),
-        glm::mat4(1.f)
-    };
-    // Load the textures of each CM face into shader
-    void setPersp(glm::mat4 persp, float far_Plane)
-    {
-        shadowProj = persp;
-        farPlane = far_Plane;
-       
-        
-    }
-    void calcNewViews()
-    {
-        cubeMapFaceViews[0] = glm::lookAt(this->pos, this->pos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));  // +X
-        cubeMapFaceViews[1] = glm::lookAt(this->pos, this->pos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)); // -X
-        cubeMapFaceViews[2] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));  // +Y (corrected up vector)
-        cubeMapFaceViews[3] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));  // -Y (corrected up vector)
-        cubeMapFaceViews[4] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));  // +Z
-        cubeMapFaceViews[5] = glm::lookAt(this->pos, this->pos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)); // -Z
-    }
-    void updateCubeFaces()
-    {
-        calcNewViews();
-        for (int i = 0; i < 6; ++i)
-        {
-            shadowTransforms[i] = shadowProj * cubeMapFaceViews[i];
-            
-        }
-       
-    }
-    void loadShadowCubeMapFaces(ShaderModule* pShader)
-    {
-        updateCubeFaces();
-        pShader->Use();
-        //for (int x = 0; x < 6; ++x)
-        //    {
-        //        
-        //        /*std::string s = "pointLights[" + std::to_string(idx);
-        //        s += "].shadowMatrices[" +std::to_string(x) + "]";*/
-        //    std::string s = "shadowMatrices[" + std::to_string(x);
-        //    s += "]";
-        //        pShader->setMat4(s, shadowProj * cubeMapFaceViews[x]);
-        //    }
-        glUniformMatrix4fv(glGetUniformLocation(pShader->ID, "shadowMatrices"), 6, GL_FALSE, glm::value_ptr(shadowTransforms[0]));
-
-        pShader->setVec3("lightPos", pos);
-        pShader->setFloat("farPlane", farPlane);
-    }
-
-    void DrawShadowMap(Renderer* pRender, ShaderModule* pCubemapShader, ShaderModule* pLightingShader);
-    void BindShadowMap(ShaderModule* pLightingShader);
-    FBO* pShadowFramebuffer = new FBO(this, FBO::FBO_POINTLIGHT_SHADOWPASS);
-
-};
 class Renderer
 {
 public:
