@@ -67,12 +67,12 @@ in VS_OUT {
     vec3 TangentViewPos;
     vec3 TangentFragPos;
     vec4 FragPosLight;
+    mat3 TBN;
 } fs_in;
 
 in mat3 TBN;
 in vec3 Normal;
 uniform mat4 lightSpaceMatrix;
-uniform sampler2D shadowMap;
 
 
 
@@ -98,21 +98,24 @@ void main()
         discard;
     }
     // obtain normal from normal map in range [0,1]
-    vec3 normal = normalize(Normal);//texture(material.texture_normal1, fs_in.TexCoords).rgb;
+    vec3 normal = texture(material.texture_normal1, fs_in.TexCoords).rgb ;//normalize(Normal)
+    normal = normalize(normal * 2.0 - 1.0);   
+    normal = normalize(fs_in.TBN * normal); 
     // transform normal vector to range [-1,1]
     //normal = normalize(normal * 2.0 - 1.0);      
     vec3 viewDirection = normalize(viewPos - fs_in.FragPos);
 
     float kEnergyConservation = ( 8.0 + material.shininess ) / ( 8.0 * kPi ); 
 
-    vec3 res;// = calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
+    vec3 res;
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
         
     }
-     res += calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
+    res += calcPointLighting(pointLights[0], normal, viewDirection, color.rgb, kEnergyConservation);  
     //res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
-        
+    //res += calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
+     
     res.rgb = pow(res.rgb, vec3(1.0/gamma));
 
     FragColor = vec4(res, 1.0); 
@@ -158,20 +161,6 @@ float ShadowCalculationPointLight(PointLight light, vec3 norm, vec3 lightDir)
 
 
 }
-float ShadowCalculation(vec4 fragPosLightSpace)
-{
-    // perform perspective divide
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
-    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
-    return shadow;
-}  
 
 
 vec3 calcPointLighting(PointLight light, vec3 norm, vec3 viewDir, vec3 color, float kEnergyConservation)
@@ -248,7 +237,7 @@ vec3 calDirectLighting(DirLight light, vec3 norm, vec3 viewDir, vec3 color, floa
 		// Get average shadow
 		shadow /= pow((sampleRadius * 2 + 1), 2);
     }
-    
+    shadow = 0;
     vec3 ambient = light.ambientStrength * color.rgb;
     vec3 diffuse = diff_strength * light.diffuseStrength * color.rgb;
     vec3 specular = spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));

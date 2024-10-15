@@ -51,6 +51,7 @@ void Renderer::InitializeShaders()
 	//pAssetManager->loadModelFromPath("Assets/sponza-gltf-pbr/sponza.glb");
 	pAssetManager->loadModelFromPath("Assets/cube.obj");
 	pAssetManager->loadModelFromPath("Assets/sponza.glb");
+	pAssetManager->loadModelFromPath("Assets/WaterBottle/WaterBottle.gltf");
 	pAssetManager->loadModelFromPath("Assets/sphere.fbx");
 	pAssetManager->loadLooseTextures("Assets/textures");
 	pModel = pAssetManager->_ModelMap["cube"];
@@ -352,8 +353,8 @@ void Renderer::Display()
 	//
 	//Render(pDepthShaderModule, 1);
 	//pShadowFramebuffer->Unbind();
-	//drawSpotLightShadowMap();
 	//drawDirectionalShadowMap();
+	//drawSpotLightShadowMap();
 	pointLights[0].DrawShadowMap(this, pPointLightShadowCubemapShader, pLightingShaderModule);
 
 
@@ -376,9 +377,9 @@ void Renderer::Display()
 	//pLightingShaderModule->setInt("shadowSpotMap", 31);
 	//spotLight.setLighting(pLightingShaderModule); // Update and set light info in shader.
 
-	/*
-	directionalLight.BindShadowMap(pLightingShaderModule);
-	spotLight.BindShadowMap(pLightingShaderModule);*/
+	
+	//directionalLight.BindShadowMap(pLightingShaderModule);
+	spotLight.BindShadowMap(pLightingShaderModule);
 	pointLights[0].BindShadowMap(pLightingShaderModule);
 
 

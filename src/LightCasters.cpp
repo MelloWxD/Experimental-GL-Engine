@@ -37,7 +37,6 @@ void DirLight::DrawShadowMap(Renderer* pRender, ShaderModule* pShader)
 	pShader->Use();
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	//RenderShadowCubeMap();
 	pRender->Render(pShader, 1);
 	pShadowFramebuffer->Unbind();
 }
@@ -201,7 +200,6 @@ void SpotLight::DrawShadowMap(Renderer* pRender, ShaderModule* pDepthShader)
 	pDepthShader->Use();
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	//RenderShadowCubeMap();
 	pRender->Render(pDepthShader, 1);
 	pShadowFramebuffer->Unbind();
 }

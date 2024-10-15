@@ -4,22 +4,37 @@
 #include"FBO.h"
 class Renderer;
 
-struct DirLight
+struct BaseLight
 {
-    v3 direction = v3(-0.2f, 1.0f, -0.3f);
+    bool _enable = true;
     float diffuseStrength = 1.f;
     float ambientStrength = 0.03f;
     v3 color = v3(1.f);
+    virtual void DrawShadowMap(Renderer* pRender, ShaderModule* pShader) = 0;
+    virtual void BindShadowMap(ShaderModule* pLightingShader) = 0;
+    enum eLightType : unsigned int
+    {
+        eDirectLight = 0,
+        eSpotLight = 1,
+        ePointLight = 2
+    };
+    unsigned _type;
+};
+struct DirLight : public BaseLight
+{
+    v3 direction = v3(-0.2f, 1.0f, -0.3f);
+
     glm::mat4 lightSpaceMatrix;
     glm::mat4 lightView;
     void updateView();
     
     void setLighting(ShaderModule* pShader);
-    void DrawShadowMap(Renderer* pRender, ShaderModule* pShader);
-    void BindShadowMap(ShaderModule* pLightingShader);
+    void DrawShadowMap(Renderer* pRender, ShaderModule* pShader) override;
+    void BindShadowMap(ShaderModule* pLightingShader) override;
     FBO* pShadowFramebuffer = new FBO(FBO::FBO_SHADOWPASS);
-
+    unsigned _type = eLightType::eDirectLight;
 };
+
 struct SpotLight
 {
     v3 position = v3(0, 10, 0);
@@ -35,7 +50,7 @@ struct SpotLight
     float diffuseStrength = 1.f;
     float farplane = SHADOW_CAST_FARPLANE;
     glm::mat4 lightSpaceMat;
-    v3 color = v3(1.f);;
+    v3 color = v3(1.f);
     void setLighting(ShaderModule* pShader);
     void updateView();
     void DrawShadowMap(Renderer* pRender, ShaderModule* pShader);

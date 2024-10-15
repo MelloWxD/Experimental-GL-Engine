@@ -79,7 +79,7 @@ void Mesh::Draw(ShaderModule* shader, unsigned flag =0)
 			{
 				prefix = "material.texture_texture_emission";
 				num = std::to_string(++emissionNr);
-				//shader->setBool("material.hasEmission", true);
+				shader->setBool("material.hasEmission", true);
 
 			}
 			shader->setInt((prefix + num).c_str(), i);
