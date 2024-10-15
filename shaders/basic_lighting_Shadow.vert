@@ -20,12 +20,12 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 lightSpaceMatrix;
-
+out vec3 Normal;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 void main()
 {    
-
+    Normal = normalize(aNormal);
     vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
     vs_out.FragPosLight = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
     vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));

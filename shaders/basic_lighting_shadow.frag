@@ -8,7 +8,7 @@ struct Material {
     sampler2D texture_emission1;     
     
 
-
+    bool hasNormal;
     bool hasEmission;
     float shininess;
 }; 
@@ -98,7 +98,15 @@ void main()
         discard;
     }
     // obtain normal from normal map in range [0,1]
-    vec3 normal = texture(material.texture_normal1, fs_in.TexCoords).rgb ;//normalize(Normal)
+    vec3 normal;
+   if (material.hasNormal)
+    {   
+         normal = texture(material.texture_normal1, fs_in.TexCoords).rgb ;//normalize(Normal)
+    }
+    else
+    {
+        normal = Normal;
+    }
     normal = normalize(normal * 2.0 - 1.0);   
     normal = normalize(fs_in.TBN * normal); 
     // transform normal vector to range [-1,1]

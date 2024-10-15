@@ -74,6 +74,8 @@ void Mesh::Draw(ShaderModule* shader, unsigned flag =0)
 			{
 				prefix = "material.texture_normal";
 				num = std::to_string(++normalNr);
+				shader->setBool("material.hasNormal", true);
+
 			}
 			else if (_textures[i]->_type == aiTextureType_EMISSIVE)
 			{
