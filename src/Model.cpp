@@ -4,10 +4,10 @@
 #include "..\Header\Texture.h"
 #include "..\Header\ShaderModule.h"
 
-void Model::Draw(ShaderModule* shader)
+void Model::Draw(ShaderModule* shader, unsigned DrawMode = 0u)
 {
     for (unsigned int i = 0; i < _meshes.size(); i++)
-        _meshes[i].Draw(shader);
+        _meshes[i].Draw(shader, DrawMode);
 }
 
 void Model::loadFromFile(std::string file_path)

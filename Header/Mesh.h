@@ -18,7 +18,7 @@ public:
 	std::vector<Texture*> _textures;
 
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture*> textures, std::string name);
-	void Draw(ShaderModule* shader);
+	void Draw(ShaderModule* shader, unsigned flag);
 	std::string _name;
 private:
 	//  render data

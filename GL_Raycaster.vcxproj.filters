@@ -108,6 +108,9 @@
     <ClCompile Include="External\include\imgui\ImSequencer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LightCasters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\Window.h">
@@ -209,6 +212,9 @@
     <ClInclude Include="External\include\imgui\ImZoomSlider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header\LightCasters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vert_Tri.glsl" />
@@ -230,5 +236,8 @@
     <None Include="shaders\debugquad.vert" />
     <None Include="shaders\debugquad.frag" />
     <None Include="shaders\moreShadows.vert" />
+    <None Include="shaders\point_light_shadow_cubemap.vert" />
+    <None Include="shaders\point_light_shadow_cubemap.frag" />
+    <None Include="shaders\point_light_shadow_cubemap.geom" />
   </ItemGroup>
 </Project>

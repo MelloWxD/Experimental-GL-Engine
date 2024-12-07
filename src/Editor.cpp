@@ -65,6 +65,7 @@ void Editor::Draw_Editor()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	static int viewId = 0;
 
 	//ImGui::ShowDemoWindow();
 	buff[0] = _pRenderer->pCamera->speed;
@@ -83,6 +84,7 @@ void Editor::Draw_Editor()
 		ImGui::End();
 	}
 
+	// Lighting Window
 	{
 		ImGui::Begin("Lights");
 		if (ImGui::Button("Toggle shadow view"))
@@ -93,15 +95,12 @@ void Editor::Draw_Editor()
 		{
 			_pRenderer->debug2 = !_pRenderer->debug2;
 		}
-		dragFloat("Bias low", _pRenderer->bias_low, 0.0000005f, NULL, NULL, "%.7f");
-		dragFloat("Bias high", _pRenderer->bias_high, 0.0000005f, NULL, NULL, "%.7f");
-
+		
 		if (ImGui::TreeNode("Directional Lighting"))
 		{
 			dragVec3("Direction", &_pRenderer->directionalLight.direction, 0.05f);
-			dragVec3("Ambient", &_pRenderer->directionalLight.ambient, 0.005f);
-			dragVec3("Diffuse", &_pRenderer->directionalLight.diffuse, 0.005f);
-			dragVec3("Specular", &_pRenderer->directionalLight.specular, 0.005f);
+			dragFloat("ambientStrength", _pRenderer->directionalLight.ambientStrength, 0.005f);
+			dragFloat("diffuseStrength", _pRenderer->directionalLight.diffuseStrength, 0.005f);
 			dragVec3("Colour", &_pRenderer->directionalLight.color, 0.005f);
 			_pRenderer->directionalLight.setLighting(_pRenderer->pLightingShaderModule);
 
@@ -110,13 +109,13 @@ void Editor::Draw_Editor()
 		if (ImGui::TreeNode("Torch Settings"))
 		{
 			auto& sl = _pRenderer->spotLight;
+			dragFloat("farplane", sl.farplane, 0.05f);
 			dragVec3("Position [STATIC]", &sl.position, 0.05f);
-			dragVec3("Direction [STATIC]", &sl.direction, 0.05f);
-			dragVec3("Ambient", &sl.ambient, 0.005f);
-			dragVec3("Diffuse", &sl.diffuse, 0.005f);
+			dragVec3("Direction [STATIC]", &sl.direction, 0.005f);
+			dragFloat("Ambient", sl.ambientStrength, 0.005f);
+			dragFloat("Diffuse", sl.diffuseStrength, 0.005f);
 			dragFloat("cutOff", sl.cutOff, 0.005f);
 			dragFloat("outerCutOff", sl.outerCutOff, 0.005f);
-			dragVec3("Specular", &sl.specular, 0.005f);
 			dragVec3("Colour", &sl.color, 0.005f);
 			dragFloat("Constant", sl.constant, 0.005f);
 			dragFloat("Linear", sl.linear, 0.005f);
@@ -131,11 +130,30 @@ void Editor::Draw_Editor()
 				if (ImGui::TreeNode(std::string("PointLight - " + std::to_string(x + 1)).c_str()))
 				{
 					auto& pl = _pRenderer->pointLights[x];
+
+					if (ImGui::Button("Recompute Cubemap"))
+					{
+						_pRenderer->RenderShadowCubeMap(); // Re-Render the scene from the six differetn faces to match new position
+
+						pl.loadShadowCubeMapFaces(_pRenderer->pLightingShaderModule); // Update the cubemaps view matrices for sampling
+					}	
+					if (ImGui::Button("Switch to Light View"))
+					{
+						_pRenderer->debug2 = !_pRenderer->debug2; // Re-Render the scene from the six differetn faces to match new position
+
+					}
+					if (_pRenderer->debug2)
+					{
+						ImGui::Text("Current view = %i", viewId);
+						if (ImGui::Button("Toggle Next View"))
+						{
+							viewId = (viewId + 1) % 6;
+							_pRenderer->debugID = viewId;
+						}
+					}
 					dragVec3("Position", &pl.pos, 0.5f);
-					dragVec3("Ambient", &pl.ambient, 0.005f);
-					dragVec3("Diffuse", &pl.diffuse, 0.005f);
-					dragVec3("Specular", &pl.specular, 0.005f);
-					dragVec3("Colour", &pl.color, 0.005f);
+					dragVec3("Color", &pl.color, 0.5f);
+					dragFloat("Ambient Strength", pl.ambient, 0.005f);
 					ImGui::Spacing();
 					dragFloat("Constant", pl.constant, 0.005f);
 					dragFloat("Linear", pl.linear, 0.005f);
@@ -151,12 +169,20 @@ void Editor::Draw_Editor()
 	
 
 	}
-	// RenderObject viewer
+	// RenderObject/Scene viewer
 	{
 		ImGui::Begin("Testing Window");
 		int cnt = 1;
+		if (ImGui::Button("Add GameObject"))
+		{
+			RenderObject* n = new RenderObject(v3(0.f), v3(0.f), v3(1.f));
+			n->pModel = pAssManager->_ModelMap["cube"];
+			_pRenderer->_vRenderObjects.push_back(n);
+
+		}
 		for (auto* r : _pRenderer->_vRenderObjects)
 		{
+			
 			if (ImGui::TreeNode((std::to_string(cnt) + " - " + r->_name ).c_str()))
 			{
 				dragVec3("Position", &r->position, 0.05f);

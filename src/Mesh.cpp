@@ -45,46 +45,52 @@ void Mesh::initialize()
 }
 
 
-void Mesh::Draw(ShaderModule* shader)
+void Mesh::Draw(ShaderModule* shader, unsigned flag =0)
 {
 	unsigned int diffuseNr = 0;
 	unsigned int specularNr = 0;
 	unsigned int emissionNr = 0;
 	unsigned int normalNr = 0;
-	for (unsigned int i = 0; i < _textures.size(); i++)
+	if (flag == 0)
 	{
-		glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-		// retrieve texture number (the N in diffuse_textureN)
-		std::string num;
-		std::string prefix;
-		
-		if (_textures[i]->_type == aiTextureType_DIFFUSE)
+		for (unsigned int i = 0; i < _textures.size(); i++)
 		{
-			prefix = "material.texture_diffuse";
-			num = std::to_string(++diffuseNr);
-		}
-		else if (_textures[i]->_type == aiTextureType_SPECULAR)
-		{
-			prefix = "material.texture_specular";
-			num = std::to_string(++specularNr);
-		}	
-		else if (_textures[i]->_type == aiTextureType_NORMALS)
-		{
-			prefix = "material.texture_normal";
-			num = std::to_string(++normalNr);
-		}	
-		else if (_textures[i]->_type == aiTextureType_EMISSIVE)
-		{
-			prefix = "material.texture_texture_emission";
-			num = std::to_string(++emissionNr);
-			//shader->setBool("material.hasEmission", true);
+			glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+			// retrieve texture number (the N in diffuse_textureN)
+			std::string num;
+			std::string prefix;
+
+			if (_textures[i]->_type == aiTextureType_DIFFUSE)
+			{
+				prefix = "material.texture_diffuse";
+				num = std::to_string(++diffuseNr);
+			}
+			else if (_textures[i]->_type == aiTextureType_SPECULAR)
+			{
+				prefix = "material.texture_specular";
+				num = std::to_string(++specularNr);
+			}
+			else if (_textures[i]->_type == aiTextureType_NORMALS)
+			{
+				prefix = "material.texture_normal";
+				num = std::to_string(++normalNr);
+				shader->setBool("material.hasNormal", true);
+
+			}
+			else if (_textures[i]->_type == aiTextureType_EMISSIVE)
+			{
+				prefix = "material.texture_texture_emission";
+				num = std::to_string(++emissionNr);
+				shader->setBool("material.hasEmission", true);
+
+			}
+			shader->setInt((prefix + num).c_str(), i);
+			glBindTexture(GL_TEXTURE_2D, _textures[i]->_id);
 
 		}
-		shader->setInt((prefix + num).c_str(), i);
-		glBindTexture(GL_TEXTURE_2D, _textures[i]->_id);
-
+		glActiveTexture(GL_TEXTURE0);
 	}
-	glActiveTexture(GL_TEXTURE0);
+	
 
 	// draw mesh
 	_vao->Bind();

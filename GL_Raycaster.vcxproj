@@ -161,6 +161,7 @@
     <ClCompile Include="External\include\imgui\ImGradient.cpp" />
     <ClCompile Include="External\include\imgui\ImGuizmo.cpp" />
     <ClCompile Include="External\include\imgui\ImSequencer.cpp" />
+    <ClCompile Include="src\LightCasters.cpp" />
     <ClCompile Include="src\RenderObject.cpp" />
     <ClCompile Include="src\Editor.cpp" />
     <ClCompile Include="External\include\imgui\imgui.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Header\FBO.h" />
     <ClInclude Include="Header\Framework.h" />
     <ClInclude Include="Header\Constants.h" />
+    <ClInclude Include="Header\LightCasters.h" />
     <ClInclude Include="Header\VAO.h" />
     <ClInclude Include="Header\Vertex.h" />
     <ClInclude Include="Header\Window.h" />
@@ -274,6 +276,9 @@
     <None Include="shaders\moreShadows.vert" />
     <None Include="shaders\noLightingFrag.glsl" />
     <None Include="shaders\noLightingVert.glsl" />
+    <None Include="shaders\point_light_shadow_cubemap.frag" />
+    <None Include="shaders\point_light_shadow_cubemap.geom" />
+    <None Include="shaders\point_light_shadow_cubemap.vert" />
     <None Include="shaders\simpleDepth.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />

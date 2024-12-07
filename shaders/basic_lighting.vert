@@ -4,10 +4,11 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBiTangent;
+precision highp float;
 
 out VS_OUT
 {
-    vec3 FragPos;
+ precision highp vec3 FragPos;
     vec2 TexCoords;
     vec3 TangentLightPos;
     vec3 TangentViewPos;
@@ -31,7 +32,7 @@ void main()
     vec3 N = normalize(normalMatrix * aNormal);
     T = normalize(T - dot(T, N) * N);
     vec3 B = cross(N, T);
-    Normal = aNormal; // mat3(transpose(inverse(model))) * aNormal;  
+    Normal = mat3(transpose(inverse(model))) * aNormal;  
     TBN = transpose(mat3(T, B, N));    
     
     vs_out.TangentLightPos = TBN * lightPos;
