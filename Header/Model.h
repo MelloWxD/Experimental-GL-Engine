@@ -13,9 +13,10 @@ class Model
 public:
 
 
-	Model(const char* path)
+	Model(const char* path, std::string& Name)
 	{
 		loadFromFile(path);
+		this->name = Name;
 	}
 
 	void Draw(ShaderModule* shader, unsigned flag);
@@ -24,6 +25,7 @@ public:
 	void loadFromFile(std::string file_path);
 
 	std::string directory;
+	std::string name;
 
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);

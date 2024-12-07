@@ -84,6 +84,7 @@ void Editor::Draw_Editor()
 		ImGui::End();
 	}
 
+	// Lighting Window
 	{
 		ImGui::Begin("Lights");
 		if (ImGui::Button("Toggle shadow view"))
@@ -168,7 +169,7 @@ void Editor::Draw_Editor()
 	
 
 	}
-	// RenderObject viewer
+	// RenderObject/Scene viewer
 	{
 		ImGui::Begin("Testing Window");
 		int cnt = 1;

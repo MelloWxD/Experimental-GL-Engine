@@ -71,8 +71,7 @@ public:
     };
 	void Render();
 
-    void Render(ShaderModule* pShader, unsigned int DrawMode);
-
+    void drawObjects(ShaderModule* pShader, unsigned int DrawMode);
     void renderQuad();
     void drawSpotLightShadowMap();
 

@@ -41,7 +41,8 @@ void Renderer::InitializeShaders()
 	_pEBO = new EBO(_indices, sizeof(_indices));
 	//pSkyboxShaderModule = new ShaderModule("shaders/skybox.vert", "shaders/skybox.frag"); // skybox Shader
 	//pCubemapShaderModule = new ShaderModule("shaders/cmBasic.vert", "shaders/cmBasic.frag"); // cubemap Shader
-	pLightingShaderModule = new ShaderModule("shaders/basic_lighting_Shadow.vert", "shaders/basic_lighting_shadow.frag"); // Lighting Shader
+	pLightingShaderModule = new ShaderModule("shaders/basic_lighting_Shadow.vert", "shaders/basic_lighting_Shadow.frag"); // Lighting Shader
+	//pLightingShaderModule = new ShaderModule("shaders/basic_lighting_Shadow.vert", "shaders/lightcube_frag.glsl"); // simple albedo frag shader
 	pDepthShaderModule = new ShaderModule("shaders/simpleDepth.vert", "shaders/emptyFrag.frag"); // simple depth write Shader
 	pDepthDefferedModule = new ShaderModule("shaders/debugquad.vert", "shaders/debugquad.frag");
 	pPointLightShadowCubemapShader = new ShaderModule("shaders/point_light_shadow_cubemap.vert", "shaders/point_light_shadow_cubemap.frag", "shaders/point_light_shadow_cubemap.geom"); // PointLight Shadowmap Shader
@@ -55,6 +56,11 @@ void Renderer::InitializeShaders()
 	pAssetManager->loadModelFromPath("Assets/sphere.fbx");
 	pAssetManager->loadLooseTextures("Assets/textures");
 	pModel = pAssetManager->_ModelMap["cube"];
+	for (auto& mesh : pModel->_meshes)
+	{
+		mesh._textures.clear();
+		mesh._textures.push_back(pAssetManager->_texMap["wall"]);
+	}
 	pModel2 = pAssetManager->_ModelMap["sponza"];
 	pModel2 = pAssetManager->_ModelMap["sphere"];
 	//pModel2 = pAssetManager->_ModelMap["sponza"];
@@ -172,7 +178,7 @@ void Renderer::RenderShadowCubeMap()
 	glGetError();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	Render(pPointLightShadowCubemapShader, DRAW_MODE_SHADOWPASS);
+	drawObjects(pPointLightShadowCubemapShader, DRAW_MODE_SHADOWPASS);
 	
 	while (!pPointLightShadowFramebuffer->checkComplete())
 	{
@@ -251,7 +257,7 @@ void Renderer::Render()
 	
 
 }
-void Renderer::Render(ShaderModule* pShader, unsigned int DrawMode = DRAW_MODE_DEFAULT)
+void Renderer::drawObjects(ShaderModule* pShader, unsigned int DrawMode = DRAW_MODE_DEFAULT)
 {
 	
 	for (auto r : _vRenderObjects)
@@ -317,7 +323,7 @@ void Renderer::drawDirectionalShadowMap()
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	//RenderShadowCubeMap();
-	Render(pDepthShaderModule, 1);
+	drawObjects(pDepthShaderModule, 1);
 	pShadowFramebuffer->Unbind();
 }
 void Renderer::drawSpotLightShadowMap()
@@ -329,7 +335,7 @@ void Renderer::drawSpotLightShadowMap()
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	//RenderShadowCubeMap();
-	Render(pDepthShaderModule, 1);
+	drawObjects(pDepthShaderModule, 1);
 	pShadowFramebuffer->Unbind();
 }
 void Renderer::Display()
@@ -409,7 +415,7 @@ void Renderer::Display()
 	else
 	{
 		
-		Render(pLightingShaderModule);
+		drawObjects(pLightingShaderModule);
 	}
 	_pEditorWindow->Draw_Editor();
 

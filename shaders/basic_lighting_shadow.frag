@@ -124,9 +124,18 @@ void main()
     //res += calcSpotLighting(spotLight, normal, viewDirection, color.rgb, kEnergyConservation);  
     //res += calDirectLighting(dirLight, normal, viewDirection, color.rgb, kEnergyConservation);
      
-    res.rgb = pow(res.rgb, vec3(1.0/gamma));
 
-    FragColor = vec4(res, 1.0); 
+     // HDR
+    float exposure = 1.5f;
+
+     vec3 mapped = res / (res + vec3(1.0)); // 'reinhard' tone mapping
+
+     //vec3 mapped = vec3(1.0) - exp(-res * exposure); // exposure tone mapping
+
+     // Gamma correction
+    mapped = pow(mapped, vec3(1.0/gamma));
+
+    FragColor = vec4(mapped, 1.0); 
     
 
 } 

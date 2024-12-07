@@ -37,7 +37,7 @@ void DirLight::DrawShadowMap(Renderer* pRender, ShaderModule* pShader)
 	pShader->Use();
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	pRender->Render(pShader, 1);
+	pRender->drawObjects(pShader, 1);
 	pShadowFramebuffer->Unbind();
 }
 
@@ -151,7 +151,7 @@ void PointLight::DrawShadowMap(Renderer* pRender, ShaderModule* pCubemapShader, 
 	glGetError();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	pRender->Render(pCubemapShader, 1); // 1 for DRAW_MODE_SHADOWPASS
+	pRender->drawObjects(pCubemapShader, 1); // 1 for DRAW_MODE_SHADOWPASS
 
 	while (!pShadowFramebuffer->checkComplete())
 	{
@@ -200,7 +200,7 @@ void SpotLight::DrawShadowMap(Renderer* pRender, ShaderModule* pDepthShader)
 	pDepthShader->Use();
 	pShadowFramebuffer->Bind();//glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	pRender->Render(pDepthShader, 1);
+	pRender->drawObjects(pDepthShader, 1);
 	pShadowFramebuffer->Unbind();
 }
 void SpotLight::BindShadowMap(ShaderModule* pLightingShader)

@@ -6,7 +6,7 @@
 RenderObject::RenderObject(Model* pm)
 {
 	pModel = pm;
-	_name = "Unnamed";
+	_name = pm->name;
 	_mModelMat = m4(1.f);
 	position = v3(0.f);
 	rotation = glm::quat(0.f, 0.f, 0.f, 0.f);

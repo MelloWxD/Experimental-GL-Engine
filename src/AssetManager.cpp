@@ -16,7 +16,8 @@ void AssetManager::loadModelFromPath(std::string file_path)
 {
 	std::filesystem::path p = file_path;
 	p.filename().filename();
-	_ModelMap.emplace(std::pair<std::string, Model*>(p.filename().stem().string(), new Model(file_path.c_str())));
+	auto entryID = p.filename().stem().string();
+	_ModelMap.emplace(std::pair<std::string, Model*>(entryID, new Model(file_path.c_str(), entryID)));
 	
 }
 
